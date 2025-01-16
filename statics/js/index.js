@@ -73,7 +73,6 @@ const canvasInit = () => {
 }
 
 const operateInit = () => {
-    console.log('operateInit')
     globalProps.el.startBtn.addEventListener(`click`, luckDrawStart)
     // ???????
     // document.onkeydown = (event) => {
@@ -153,8 +152,6 @@ const getPrizeIndex = () => {
 
 // 开始抽奖
 const luckDrawStart = () => {
-    console.log(globalProps.nowPrizeObj,'当前选择的抽奖奖品')
-    
     // 检查是否选择了奖品
     if (globalProps.nowPrizeObj.length === 0) {
         const confirmHidden = confirm(`当前未选择奖品，且抽奖人数为 ${getMemberNumInputVal()}，是否要抽取隐藏奖？`);
@@ -189,7 +186,6 @@ const luckDrawStart = () => {
     
     const luckMemberIndexArrStr = localStorage.getItem(storageKey);
     const luckMemberIndexArr = luckMemberIndexArrStr ? JSON.parse(luckMemberIndexArrStr) : [];
-    console.log('已经中奖名单', luckMemberIndexArr);
 
     // 获取抽奖人数
     const newLuckNum = getMemberNumInputVal();
@@ -206,7 +202,6 @@ const luckDrawStart = () => {
 
     // 获取奖品
     const prizeIndex = getPrizeIndex()
-    console.log('奖品id',prizeIndex)
     // 已抽奖品 存到本地
     localStorage.setItem(globalProps.storageKey.prizeIndex, prizeIndex.toString());
 
@@ -460,7 +455,6 @@ const prizeShow = () => {
 
 // 修改导出未中奖名单函数
 const exportNotLuckMemberList = (isHidden = false) => {
-    console.log('开始导出未中奖名单');
     // 根据是否是隐藏奖选择对应的存储键
     const storageKey = isHidden ? 
         globalProps.storageKey.hiddenLuckMemberIndexArr : 
@@ -468,8 +462,6 @@ const exportNotLuckMemberList = (isHidden = false) => {
     
     const luckMemberIndexArrStr = localStorage.getItem(storageKey);
     const luckMemberIndexArr = luckMemberIndexArrStr ? JSON.parse(luckMemberIndexArrStr) : [];
-    console.log('已中奖名单数组:', luckMemberIndexArr);
-    console.log('总名单:', memberList);
     
     // 过滤出未中奖名单
     const notLuckMemberList = memberList.filter((member, index) => {
@@ -478,7 +470,6 @@ const exportNotLuckMemberList = (isHidden = false) => {
 
     // 如果没有未中奖人员，直接返回
     if (notLuckMemberList.length === 0) {
-        console.log('没有未中奖人员');
         return;
     }
 
@@ -513,17 +504,13 @@ const exportNotLuckMemberList = (isHidden = false) => {
 
 // 修改导出中奖名单函数
 const exportLuckMemberList = (isHidden = false) => {
-    console.log('开始导出中奖名单');
-    
     if (isHidden) {
         // 获取历史隐藏奖记录
         const hiddenRecordsStr = localStorage.getItem(globalProps.storageKey.hiddenPrizeRecords);
         const hiddenRecords = hiddenRecordsStr ? JSON.parse(hiddenRecordsStr) : [];
-        console.log('历史隐藏奖记录:', hiddenRecords);
         
         // 检查是否有中奖记录
         if (hiddenRecords.length === 0 && globalProps.nowHiddenLuckMemberIndexArr.length === 0) {
-            console.log('没有中奖人员');
             return;
         }
 
@@ -550,21 +537,12 @@ const exportLuckMemberList = (isHidden = false) => {
         const luckMemberArr = luckMemberIndexArrStr ? JSON.parse(luckMemberIndexArrStr) : [];
         const prizeIndexStr = localStorage.getItem(globalProps.storageKey.prizeIndex);
         const prizeIndexArr = prizeIndexStr ? prizeIndexStr.split(',') : [];
+        console.log(luckMemberIndexArrStr,'已中奖名单')
+        console.log(luckMemberArr,'已中奖名单数组')
+        console.log(prizeIndexStr,'已中奖奖品')
+        console.log(prizeIndexArr,'已中奖奖品数组')
 
-        // 合并历史记录和当前抽取的奖项
-        const allLuckMembers = [...luckMemberArr];
-        if (globalProps.nowLuckMemberIndexArr.length > 0) {
-            allLuckMembers.push(...globalProps.nowLuckMemberIndexArr);
-        }
-
-        // 合并历史奖品和当前奖品
-        const allPrizeIds = [...prizeIndexArr];
-        if (globalProps.nowPrizeObj.length > 0) {
-            allPrizeIds.push(...globalProps.nowPrizeObj.map(p => p.id.toString()));
-        }
-
-        if (allLuckMembers.length === 0) {
-            console.log('没有中奖人员');
+        if (luckMemberArr.length === 0) {
             return;
         }
 
@@ -572,18 +550,11 @@ const exportLuckMemberList = (isHidden = false) => {
         let csvContent = '奖项,中奖人员\n';
         let currentIndex = 0;
 
-        // 按奖品等级排序（从高到低）
-        const sortedPrizeIds = [...new Set(allPrizeIds)].sort((a, b) => {
-            const prizeA = prizeList.find(p => p.id.toString() === a);
-            const prizeB = prizeList.find(p => p.id.toString() === b);
-            return prizeA.levelCode - prizeB.levelCode; // 假设levelCode越小等级越高
-        });
-
-        // 生成CSV内容
-        sortedPrizeIds.forEach(prizeId => {
+        // 按照抽奖顺序处理奖品
+        prizeIndexArr.forEach(prizeId => {
             const prize = prizeList.find(p => p.id.toString() === prizeId);
             if (prize) {
-                const winners = allLuckMembers
+                const winners = luckMemberArr
                     .slice(currentIndex, currentIndex + prize.memberNum)
                     .map(index => memberList[index].name);
                 
