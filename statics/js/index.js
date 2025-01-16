@@ -64,7 +64,7 @@ const canvasInit = () => {
         textColour: "＃fff",
         // textHeight: 10,
         // wheelZoom: false,
-        imageScale: 0.2, // 控制图片缩放比例
+        imageScale: 0.18, // 控制图片缩放比例
         // imageRadius: 10, // 控制图片半径
         // imageMode: "both", // 同时显示图片和文字
         // imagePosition: "top", // 图片位置

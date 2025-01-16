@@ -1216,19 +1216,29 @@ Tproto.DrawText = function(c,xoff,yoff) {
 
 
 Tproto.DrawImage = function(c,xoff,yoff,im) {
-  var x = this.x, y = this.y, s = this.sc,
-    i = im || this.fimage, w = this.w, h = this.h, a = this.alpha,
-    shadow = this.shadow;
-  c.globalAlpha = a;
-  shadow && this.SetShadowColour(c,shadow,a);
-  x += (xoff / s) - (w / 2);
-  y += (yoff / s) - (h / 2);
-  c.setTransform(s, 0, 0, s, s * x, s * y);
-
-  c.drawImage(i, 0, 0, w, h);
-  c.font = '14px Adobe Ming Std';
-  c.fillStyle='#fff';
-  c.fillText(i.title,58,150);
+    var x = this.x, y = this.y, s = this.sc,
+        i = im || this.fimage, w = this.w, h = this.h, a = this.alpha,
+        shadow = this.shadow;
+    c.globalAlpha = a;
+    shadow && this.SetShadowColour(c,shadow,a);
+    x += (xoff / s) - (w / 2);
+    y += (yoff / s) - (h / 2);
+    c.setTransform(s, 0, 0, s, s * x, s * y);
+    
+    // 保存当前上下文状态
+    c.save();
+    
+    // 创建圆形裁剪路径
+    c.beginPath();
+    c.arc(w/2, h/2, w/2, 0, 2 * Math.PI);
+    c.closePath();
+    c.clip();
+    
+    // 绘制图片
+    c.drawImage(i, 0, 0, w, h);
+    
+    // 恢复上下文状态
+    c.restore();
 };
 
 
