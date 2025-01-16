@@ -106,7 +106,8 @@ const operateInit = () => {
 
     globalProps.el.prizeLevel.addEventListener(`click`, (e) => {
         if (e.target.tagName === `SPAN`) {
-            let htm = `<div class="close-btn" id="hidePrizeImgBtn">+</div>`
+            let htm = `<div class="close-btn" id="hidePrizeImgBtn">+</div>
+                      <div class="prize-container">`; // 添加内部容器
             prizeList.forEach((item, index) => {
                 if(item.level==e.target.textContent){
                     htm+=`<div class="prizeImgItem prizeImgItem-${item.levelCode}">
@@ -114,12 +115,13 @@ const operateInit = () => {
                           </div>`
                 }
             })
-            globalProps.el.prizeImg.innerHTML = htm
-            globalProps.el.prizeImg.classList.remove(`hide-g`)
+            htm += `</div>`; // 关闭内部容器
+            globalProps.el.prizeImg.innerHTML = htm;
+            globalProps.el.prizeImg.classList.remove(`hide-g`);
 
-            const hidePrizeImgBtnEl = document.getElementById(`hidePrizeImgBtn`)
+            const hidePrizeImgBtnEl = document.getElementById(`hidePrizeImgBtn`);
             hidePrizeImgBtnEl.addEventListener(`click`, () => {
-                globalProps.el.prizeImg.classList.add(`hide-g`)
+                globalProps.el.prizeImg.classList.add(`hide-g`);
             })
         }
     })

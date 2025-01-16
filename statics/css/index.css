@@ -366,17 +366,33 @@ body {
     flex-wrap: wrap;
     align-items: center;
     align-content: center;
-    justify-content: space-evenly;
+    justify-content: center;
+    border: 10px solid blue;
 }
-.prizeImgItem{
+
+.prize-container {
+    width: 80%;
+    border: 10px solid red;
+    max-width: 2000px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.prizeImgItem {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin: 32px 0;
+    justify-content: center;
+    margin: 15px;
+    flex: 0 1 auto;
 }
+
 .prizeImgItem img{
     width: 240px;
 }
+
 #showPrizeImgBtn{
     position: relative;
 }
@@ -403,19 +419,19 @@ body {
     cursor: pointer;
 }
 .prizeImgItem-0 img{
-    width: 620px;
+    width: 520px;
 }
 .prizeImgItem-1 img{
-    width: 450px;
+    width: 460px;
 }
 .prizeImgItem-2 img{
-    width: 385px;
+    width: 380px;
 }
 .prizeImgItem-3 img{
     width: 320px;
 }
 .prizeImgItem-4 img{
-    width: 270px;
+    width: 320px;
 }
 
 #canvas li img {
