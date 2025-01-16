@@ -91,12 +91,6 @@ const operateInit = () => {
     // }
     globalProps.el.pauseBtn.addEventListener(`click`, luckDrawPause)
     // 双击重置
-    // globalProps.el.resetBtn.addEventListener(`dblclick`, () => {
-    //     localStorage.removeItem(globalProps.storageKey.luckMemberIndexArr);
-    //     localStorage.removeItem(globalProps.storageKey.hiddenLuckMemberIndexArr);
-    //     localStorage.removeItem(globalProps.storageKey.prizeIndex);
-    //     location.reload();
-    // })
     globalProps.el.resetBtn.addEventListener(`dblclick`, resetAll)
     // globalProps.el.lockBtn.addEventListener(`click`, () => {
     //     globalProps.lock = true;// 锁定
@@ -338,7 +332,7 @@ const showNewLuckMemberResult = () => {
                 </div>
             `;
         });
-
+        
         resultHtml = `
             <div class="prize-images">
                 <div class="prize-image">

@@ -4,11 +4,25 @@
 
 html,
 body {
-    width: 100%;
-    height: 100%;
+    /* width: 100%;
+    height: 100%; */
+    width: 2800px;
+    height: 764px;
     padding: 0;
     margin: 0;
     font-size: 14px;
+    position: relative;
+    overflow: hidden;
+}
+
+#main {
+    width: 2800px;
+    height: 764px;
+    overflow: hidden;
+    background: url(../images/bg.jpg);
+    background-size: 100% 100%;
+    /* border: 10px solid blue; */
+    position: relative;
 }
 
 .hide-g {
@@ -73,20 +87,14 @@ body {
     cursor: pointer;
 }
 
-#main {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: url(../images/bg.jpg);
-    background-size: 100% 100%;
-}
-
 #mask {
     background: rgba(0, 0, 0, .45);
     backdrop-filter: blur(5px);
     z-index: 1;
-    height: 100%;
-    width: 100%;
+    /* height: 100%;
+    width: 100%; */
+    width: 2800px;
+    height: 764px;
     position: absolute;
     left: 0;
     top: 0;
@@ -105,6 +113,7 @@ body {
     background: #fff;
     width: 460px;
     color: #333;
+    max-height: calc(100% - 24px);
 }
 
 #prizeShow.is-narrow {
@@ -132,12 +141,13 @@ body {
     display: flex;
     align-items: center;
     z-index: 0;
+    max-width: calc(50% - 24px);
 }
 
 #result {
     position: absolute;
-    height: 100%;
-    width: 100%;
+    width: 2800px;
+    height: 764px;
     top: 0;
     left: 0;
     display: block;
@@ -206,6 +216,7 @@ body {
     display: flex;
     align-items: center;
     z-index: 0;
+    max-width: calc(100% - 24px);
 }
 
 .operate .input {
@@ -346,8 +357,10 @@ body {
     top: 0;
     left: 0;
     background: rgba(0,0,0,0.6);
-    width: 100%;
-    height: 100%;
+    /* width: 100%;
+    height: 100%; */
+    width: 2800px;
+    height: 764px;
     color: #333;
     display: flex;
     flex-wrap: wrap;
@@ -431,7 +444,9 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 95%;
+    width: calc(100% - 60px);
+    max-height: calc(100% - 60px);
+    overflow: auto;
     padding: 30px;
     display: flex;
     justify-content: center;
