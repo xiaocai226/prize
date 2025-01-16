@@ -52,7 +52,6 @@ const memberList = [
     {name: "陈煌"},
     {name: "陈嘉耀"},
     {name: "陈坚"},
-    
     {name: "陈建芳"},
     {name: "陈丽明"},
     {name: "陈龙腾"},
@@ -111,6 +110,18 @@ const memberList = [
     {name: "钟如梅"},
     {name: "钟志毅"},
     {name: "朱楷妮"},
+    {name: "陈连波"},
+    {name: "陈绍园"},
+    {name: "孔燕凌"},
+    {name: "林婉真"},
+    {name: "美东"},
+    {name: "孟总"},
+    {name: "苏秋梅"},
+    {name: "王超然"},
+    {name: "王宇杰"},
+    {name: "郑俊杰"},
+    {name: "祝金平"},
+
     // zo
     {name: "lilian"},
     {name: "陈春梅"},

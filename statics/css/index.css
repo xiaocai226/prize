@@ -370,12 +370,10 @@ body {
     align-items: center;
     align-content: center;
     justify-content: center;
-    border: 10px solid blue;
 }
 
 .prize-container {
     width: 80%;
-    border: 10px solid red;
     max-width: 2000px;
     display: flex;
     flex-wrap: wrap;
@@ -425,10 +423,10 @@ body {
     width: 520px;
 }
 .prizeImgItem-1 img{
-    width: 460px;
+    width: 320px;
 }
 .prizeImgItem-2 img{
-    width: 380px;
+    width: 320px;
 }
 .prizeImgItem-3 img{
     width: 320px;
