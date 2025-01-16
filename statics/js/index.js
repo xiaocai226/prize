@@ -157,7 +157,7 @@ const luckDrawStart = () => {
     
     // 检查是否选择了奖品
     if (globalProps.nowPrizeObj.length === 0) {
-        const confirmHidden = confirm('当前未选择奖品，是否要抽取隐藏奖？');
+        const confirmHidden = confirm(`当前未选择奖品，且抽奖人数为 ${getMemberNumInputVal()}，是否要抽取隐藏奖？`);
         if (!confirmHidden) {
             return; // 如果用户点击取消，则终止抽奖
         }
@@ -271,6 +271,9 @@ const luckDrawPause = () => {
     
     showNewLuckMemberResult();
     globalProps.running = false;
+    
+    // 重置输入框值为1
+    globalProps.el.memberNumInput.value = "1";
 }
 
 // 显示抽奖结果
@@ -281,12 +284,38 @@ const showNewLuckMemberResult = () => {
         [...globalProps.nowHiddenLuckMemberIndexArr] : 
         [...globalProps.nowLuckMemberIndexArr];
     
-    if(!globalProps.isHiddenPrize && globalProps.nowPrizeObj.length > 0) {
-        let prizeSectionsHtml = ``;
+    // 无论是隐藏奖还是普通奖品，都使用相同的显示样式
+    let prizeSectionsHtml = ``;
+    
+    if (globalProps.isHiddenPrize) {
+        // 隐藏奖的显示逻辑
+        let winnersHtml = ``;
+        newLuckMembers.forEach((newLuckMemberIndex) => {
+            newLuckMember = memberList[newLuckMemberIndex];
+            winnersHtml += `
+                <div class="winner-card">
+                    <div class="winner-avatar">
+                        <img src="./statics/images/member/${newLuckMember.name}.png" alt="${newLuckMember.name}">
+                    </div>
+                    <div class="winner-name">${newLuckMember.name}</div>
+                </div>
+            `;
+        });
         
+        prizeSectionsHtml = `
+            <div class="prize-section">
+                <div class="prize-image">
+                    <img src="./statics/images/prize-min/27.png" alt="隐藏奖"/>
+                </div>
+                <div class="winners-grid">
+                    ${winnersHtml}
+                </div>
+            </div>
+        `;
+    } else {
+        // 普通奖品的显示逻辑（保持不变）
         globalProps.nowPrizeObj.forEach(item => {
             let winnersHtml = ``;
-            // 处理获奖者
             newLuckMembers.forEach((newLuckMemberIndex, index) => {
                 if (item.memberNum > index) {
                     newLuckMember = memberList[newLuckMemberIndex];
@@ -314,43 +343,13 @@ const showNewLuckMemberResult = () => {
             
             newLuckMembers.splice(0, item.memberNum);
         });
-
-        resultHtml = `
-            <div class="prize-sections">
-                ${prizeSectionsHtml}
-            </div>
-        `;
-    } else {
-        // 隐藏奖的显示逻辑
-        let winnersHtml = ``;
-        newLuckMembers.forEach((newLuckMemberIndex) => {
-            newLuckMember = memberList[newLuckMemberIndex];
-            winnersHtml += `
-                <div class="winner-card">
-                    <div class="winner-avatar">
-                        <img src="./statics/images/member/${newLuckMember.name}.png" alt="${newLuckMember.name}">
-                    </div>
-                    <div class="winner-name">${newLuckMember.name}</div>
-                </div>
-            `;
-        });
-        
-        resultHtml = `
-            <div class="prize-images">
-                <div class="prize-image">
-                    <img src="./statics/images/prize-min/27.png" alt="隐藏奖"/>
-                </div>
-            </div>
-            <div class="prize-sections">
-                <div class="prize-section">
-                    <div class="prize-title">隐藏奖 - ${globalProps.hiddenPrizeAmount}元</div>
-                    <div class="winners-grid">
-                        ${winnersHtml}
-                    </div>
-                </div>
-            </div>
-        `;
     }
+
+    resultHtml = `
+        <div class="prize-sections">
+            ${prizeSectionsHtml}
+        </div>
+    `;
 
     globalProps.el.result.innerHTML = `<div id="resultRow">${resultHtml}</div>`;
     const closeBtnEl = document.createElement(`div`);
@@ -375,14 +374,17 @@ const showNewLuckMemberResult = () => {
 
 // 关闭抽奖结果
 const closeResult = () => {
-    globalProps.el.mask.classList.add(`hide-g`)
-    globalProps.el.result.classList.add(`hide-g`)
-    globalProps.el.prizeShow.classList.add(`hide-g`)
+    globalProps.el.mask.classList.add(`hide-g`);
+    globalProps.el.result.classList.add(`hide-g`);
+    globalProps.el.prizeShow.classList.add(`hide-g`);
     //globalProps.el.runningMusic.pause()
     // globalProps.el.runningSpecialMusic.pause()
     // globalProps.el.resultMusic.pause()
-    globalProps.nowPrizeObj = []
-    globalProps.nowLuckMemberIndexArr = []
+    globalProps.nowPrizeObj = [];
+    globalProps.nowLuckMemberIndexArr = [];
+    
+    // 重置输入框值为1
+    globalProps.el.memberNumInput.value = "1";
 }
 
 // 奖品初始化
