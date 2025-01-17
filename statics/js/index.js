@@ -160,16 +160,16 @@ const luckDrawStart = () => {
         }
         
         // 密码验证
-        const password = prompt('请输入隐藏奖密码：');
-        if (password !== 'lucky888') { // 这里设置密码为'lucky888'
-            alert('密码错误，无法抽取隐藏奖！');
-            return;
-        }
+        // const password = prompt('请输入隐藏奖密码：');
+        // if (password !== 'lucky888') { // 这里设置密码为'lucky888'
+        //     alert('密码错误，无法抽取隐藏奖！');
+        //     return;
+        // }
         
-        // 输入金额
-        const amount = prompt('请输入此次隐藏奖金额：');
-        if (!amount || isNaN(amount) || amount <= 0) {
-            alert('请输入有效的金额！');
+        // 输入奖品内容（更灵活的输入）
+        const amount = prompt('请输入隐藏奖内容（可以是金额或文字）：');
+        if (!amount) {
+            alert('请输入有效的隐藏奖内容！');
             return;
         }
         
@@ -362,8 +362,27 @@ const showNewLuckMemberResult = () => {
             // exportLuckMemberList();// 导出中奖名单
         // }
         // 根据是否是隐藏奖调用对应的导出函数
-        exportNotLuckMemberList(globalProps.isHiddenPrize);
-        exportLuckMemberList(globalProps.isHiddenPrize);
+        // exportNotLuckMemberList(globalProps.isHiddenPrize);
+        // exportLuckMemberList(globalProps.isHiddenPrize);
+        if (!globalProps.isHiddenPrize) {
+            // 检查是否所有常规奖品都已抽完
+            const prizeIndexStr = localStorage.getItem(globalProps.storageKey.prizeIndex);
+            const prizeIndexArr = prizeIndexStr ? prizeIndexStr.split(',') : [];
+            
+            // 计算所有常规奖品的总数
+            const totalRegularPrizes = prizeList.length;
+            
+            // 如果已抽取的奖品数等于总奖品数，说明所有常规奖品都抽完了
+            if (prizeIndexArr.length === totalRegularPrizes) {
+                // 导出中奖和未中奖名单
+                exportLuckMemberList(false);
+                exportNotLuckMemberList(false);
+            }
+        } else {
+            // 隐藏奖的导出逻辑保持不变
+            exportNotLuckMemberList(globalProps.isHiddenPrize);
+            exportLuckMemberList(globalProps.isHiddenPrize);
+        }
     }, 300);
 }
 
@@ -516,19 +535,13 @@ const exportLuckMemberList = (isHidden = false) => {
         }
 
         // 隐藏奖的CSV格式
-        let csvContent = '奖项,中奖人员,金额\n';
+        let csvContent = '奖项,中奖人员,奖品内容\n';
         
         // 添加历史记录
         hiddenRecords.forEach(record => {
             const winners = record.winners.map(index => memberList[index].name);
-            csvContent += `隐藏奖,${winners.join('、')},${record.amount}元\n`;
+            csvContent += `隐藏奖,${winners.join('、')},${record.amount}\n`;
         });
-        
-        // 添加当前抽取的隐藏奖（如果有）
-        // if (globalProps.nowHiddenLuckMemberIndexArr.length > 0) {
-        //     const currentWinners = globalProps.nowHiddenLuckMemberIndexArr.map(index => memberList[index].name);
-        //     csvContent += `隐藏奖,${currentWinners.join('、')},${globalProps.hiddenPrizeAmount}元\n`;
-        // }
 
         // 输出CSV
         outputCSV(csvContent, isHidden);
