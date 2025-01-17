@@ -21,7 +21,6 @@ body {
     overflow: hidden;
     background: url(../images/bg.jpg);
     background-size: 100% 100%;
-    /* border: 10px solid blue; */
     position: relative;
 }
 
@@ -107,12 +106,13 @@ body {
     transform: translate3d(0%, -50%, 0);
     z-index: 2;
     transition: all .3s;
-    border: 1px solid #fef6cd;
-    box-shadow: 0 2px 40px 0 #fef6cd;
-    border-radius: 8px;
-    background: #fff;
+    border: none;
+    box-shadow: 0 8px 32px rgba(254, 246, 205, 0.4);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
     width: 520px;
-    color: #333;
+    color: #fff;
     max-height: calc(100% - 24px);
 }
 
@@ -246,35 +246,44 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0px 12px;
-    border-bottom: 1px solid #dfdfdf;
-    line-height: 32px;
-    position: relative;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
 }
 
-.prize-table .row span:nth-child(1){
+.prize-table .row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.prize-table .row:last-child {
+    border-bottom: none;
+}
+
+.prize-table .row span:nth-child(1) {
     width: 16%;
+    font-weight: 500;
 }
-.prize-table .row span:nth-child(2){
+
+.prize-table .row span:nth-child(2) {
     width: 74%;
-}
-.prize-table .row span:nth-child(3){
-    width: 10%;
-}
-.prize-table .row span:nth-child(4){
-    width: 10%;
+    /* color: rgba(255, 255, 255, 0.9); */
 }
 
-.prize-table .row.disabled span{
-    color: #999;
+.prize-table .row span:nth-child(3) {
+    width: 10%;
+    /* color: #e56e6e; */
 }
 
-.prize-table .row.disabled:before{
+.prize-table .row.disabled {
+    opacity: 0.5;
+}
+
+.prize-table .row.disabled:before {
     content: '';
     display: block;
     width: 96%;
     height: 1px;
-    background: #999;
+    background: rgba(255, 255, 255, 0.3);
     position: absolute;
     left: 2%;
     top: 50%;
@@ -282,69 +291,66 @@ body {
 }
 
 .prize-table input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     cursor: pointer;
     display: inline-block;
     text-align: center;
     vertical-align: middle;
-    line-height: 18px;
     position: relative;
-    top: -1px;
+    margin-right: 8px;
 }
 
-.prize-table input[type="checkbox"]::before{
+.prize-table input[type="checkbox"]::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
-    border-radius: 3px;
+    border-radius: 4px;
     width: 100%;
     height: 100%;
-    background-color: #fff;
-    border: 1px solid #0e6dd9;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
 }
 
-.prize-table input[type="checkbox"]:disabled::before{
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    border-radius: 3px;
-    width: 100%;
-    height: 100%;
-    background-color: #f9f9f9;
-    border: 1px solid #dfdfdf;
-    cursor: no-drop;
+.prize-table input[type="checkbox"]:hover::before {
+    border-color: #e56e6e;
+}
+
+.prize-table input[type="checkbox"]:disabled::before {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    cursor: not-allowed;
 }
 
 .prize-table input[type="checkbox"]:checked::before {
     content: "\2713";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    font-size: 16px;
-    letter-spacing: 0px;
-    line-height: 17px;
-    background-color: #0F6ED9;
-    border: 1px solid #0F6ED9;
+    background-color: #e56e6e;
+    border-color: #e56e6e;
     color: #fff;
-    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
 }
 
 .tableTitle{
     display: flex;
     justify-content: space-between;
-    height: 40px;
-    line-height: 40px;
-    padding: 0 12px;
+    height: 50px;
+    line-height: 50px;
+    padding: 0 20px;
     font-weight: bold;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 16px 16px 0 0;
 }
 
 .tableCont {
     max-height: 560px;
     overflow: auto;
+    padding: 10px 0;
 }
 
 .lockBtn{
@@ -709,4 +715,22 @@ body {
 .prize-section.hidden-prize .winner-avatar {
     width: 70px;
     height: 70px;
+}
+
+.tableCont::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tableCont::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.tableCont::-webkit-scrollbar-thumb {
+    background: rgba(229, 110, 110, 0.5);
+    border-radius: 3px;
+}
+
+.tableCont::-webkit-scrollbar-thumb:hover {
+    background: rgba(229, 110, 110, 0.8);
 }
