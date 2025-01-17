@@ -1,6 +1,6 @@
 const memberList = [
     // DNS
-    {name: "蔡总"},
+    {name: "蔡湛"},
     {name: "陈剑辉"},
     {name: "陈礼逸"},
     {name: "陈斯毅"},
@@ -33,7 +33,7 @@ const memberList = [
     {name: "苏国城"},
     {name: "苏裕平"},
     {name: "王樊斌"},
-    {name: "文总"},
+    {name: "文太友"},
     {name: "吴强"},
     {name: "肖晓丽"},
     {name: "杨海帆"},
