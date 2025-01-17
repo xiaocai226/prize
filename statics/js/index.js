@@ -22,9 +22,9 @@ globalProps.el.memberNumInput = document.getElementById(`memberNumInput`)
 globalProps.el.startBtn = document.getElementById(`startBtn`)
 globalProps.el.pauseBtn = document.getElementById(`pauseBtn`)
 globalProps.el.resetBtn = document.getElementById(`resetBtn`)
-// globalProps.el.runningMusic = document.getElementById(`runningMusic`)
-// globalProps.el.runningSpecialMusic = document.getElementById(`runningSpecialMusic`)
-// globalProps.el.resultMusic = document.getElementById(`resultMusic`)
+globalProps.el.runningMusic = document.getElementById(`runningMusic`)
+globalProps.el.runningSpecialMusic = document.getElementById(`runningSpecialMusic`)
+globalProps.el.resultMusic = document.getElementById(`resultMusic`)
 // globalProps.el.lockBtn = document.getElementById(`lockBtn`)
 globalProps.el.showPrizeImgBtn = document.getElementById(`showPrizeImgBtn`)
 globalProps.el.prizeLevel = document.getElementById(`prizeLevel`)
@@ -206,9 +206,9 @@ const luckDrawStart = () => {
     localStorage.setItem(globalProps.storageKey.prizeIndex, prizeIndex.toString());
 
     globalProps.running = true;// 开始抽奖 抽奖进行中
-    // globalProps.el.runningMusic.pause()// 暂停背景音乐
-    // globalProps.el.runningSpecialMusic.currentTime = 7.2// 设置背景音乐播放时间
-    // globalProps.el.runningSpecialMusic.play()// 播放背景音乐 
+    globalProps.el.runningMusic.pause()// 暂停背景音乐
+    globalProps.el.runningSpecialMusic.currentTime = 7.2// 设置背景音乐播放时间
+    globalProps.el.runningSpecialMusic.play()// 播放背景音乐 
 
     globalProps.el.prizeShow.classList.add(`hide-g`)// 隐藏奖品列表
     globalProps.el.startBtn.classList.add(`hide-g`)// 隐藏开始按钮
@@ -240,15 +240,15 @@ const luckDrawPause = () => {
     globalProps.el.pauseBtn.classList.add(`hide-g`);// 隐藏停止按钮
     globalProps.el.startBtn.classList.remove(`hide-g`);// 显示开始按钮
     TagCanvas.SetSpeed("canvas", getCanvasSpeed());// 设置抽奖速度
-    // globalProps.el.runningMusic.pause();// 暂停背景音乐
-    // globalProps.el.runningSpecialMusic.pause();// 暂停背景音乐
-    // globalProps.el.resultMusic.currentTime = 2.3;// 设置结果音乐播放时间
-    // globalProps.el.resultMusic.play();// 播放结果音乐
-    // setTimeout(() => {
-    //     globalProps.el.resultMusic.pause()// 暂停结果音乐
-    //     globalProps.el.runningMusic.currentTime = 1.5// 设置背景音乐播放时间
-    //     globalProps.el.runningMusic.play()// 播放背景音乐
-    // },6400)
+    globalProps.el.runningMusic.pause();// 暂停背景音乐
+    globalProps.el.runningSpecialMusic.pause();// 暂停背景音乐
+    globalProps.el.resultMusic.currentTime = 2.3;// 设置结果音乐播放时间
+    globalProps.el.resultMusic.play();// 播放结果音乐
+    setTimeout(() => {
+        globalProps.el.resultMusic.pause()// 暂停结果音乐
+        globalProps.el.runningMusic.currentTime = 1.5// 设置背景音乐播放时间
+        globalProps.el.runningMusic.play()// 播放背景音乐
+    },6400)
     // globalProps.lock = false// 解锁
     // globalProps.el.lockBtn.classList.remove(`hide-g`)// 显示锁按钮
     if (globalProps.isHiddenPrize && globalProps.nowHiddenLuckMemberIndexArr.length > 0) {
@@ -372,9 +372,9 @@ const closeResult = () => {
     globalProps.el.mask.classList.add(`hide-g`);
     globalProps.el.result.classList.add(`hide-g`);
     globalProps.el.prizeShow.classList.add(`hide-g`);
-    //globalProps.el.runningMusic.pause()
-    // globalProps.el.runningSpecialMusic.pause()
-    // globalProps.el.resultMusic.pause()
+    globalProps.el.runningMusic.pause()
+    globalProps.el.runningSpecialMusic.pause()
+    globalProps.el.resultMusic.pause()
     globalProps.nowPrizeObj = [];
     globalProps.nowLuckMemberIndexArr = [];
     
@@ -388,11 +388,12 @@ const prizeInit = () => {
     showPrizeBtnEl.addEventListener(`click`, () => {
         prizeShow()
     })
-    // const audioOpenBtnEl = document.getElementById(`audioOpenBtn`)
-    // audioOpenBtnEl.addEventListener(`click`, () => {
-    //     globalProps.el.runningMusic.currentTime = 1.5
-    //     globalProps.el.runningMusic.play()
-    // })
+    // 打开背景音乐
+    const audioOpenBtnEl = document.getElementById(`audioOpenBtn`)
+    audioOpenBtnEl.addEventListener(`click`, () => {
+        globalProps.el.runningMusic.currentTime = 1.5
+        globalProps.el.runningMusic.play()
+    })
 }
 
 // 显示奖品列表
