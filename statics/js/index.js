@@ -427,10 +427,10 @@ const prizeShow = () => {
     let prizeRowHtml = ``
     prizeList.forEach(item => {
         prizeRowHtml += `<div class="row ${prizeIndexArr.includes(item.id.toString())?'disabled':''}">
+                            <span><input type="checkbox" ${prizeIndexArr.includes(item.id.toString())?'disabled':''} value="${item.id}" name="prize-id"></span>
                             <span>${item.level}</span>
                             <span>${item.name}</span>
                             <span>${item.memberNum}</span>
-                            <span><input type="checkbox" ${prizeIndexArr.includes(item.id.toString())?'disabled':''} value="${item.id}" name="prize-id"></span>
                         </div>`
     })
 
