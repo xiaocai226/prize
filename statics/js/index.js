@@ -298,7 +298,7 @@ const showNewLuckMemberResult = () => {
         });
         
         prizeSectionsHtml = `
-            <div class="prize-section">
+            <div class="prize-section hidden-prize">
                 <div class="prize-image">
                     <img src="./statics/images/prize-min/27.png" alt="隐藏奖"/>
                 </div>
