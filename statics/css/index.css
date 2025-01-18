@@ -80,13 +80,15 @@ body {
 }
 
 .button-g.success {
-    background: #69db7c;
-    color: #fff;
-    border-color: #51cf66;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .button-g.success:hover {
-    background: #51cf66;
+    background: rgba(105, 219, 124, 0.8);  /* 柔和的绿色 */
+    border-color: rgba(81, 207, 102, 0.8);  /* 深一点的绿色边框 */
+    color: #fff;
 }
 
 .button-g.warning {
@@ -912,4 +914,16 @@ body {
 .export-dropdown.show {
     display: block;
     animation: fadeInUp 0.3s ease forwards;
+}
+
+/* 添加新的按钮样式 */
+.button-g.blue-btn {
+    background: rgba(77, 171, 247, 0.8);
+    border-color: rgba(51, 154, 240, 0.8);
+    color: #fff;
+}
+
+.button-g.blue-btn:hover {
+    background: rgba(51, 154, 240, 0.9);
+    transform: scale(1.05);
 }
