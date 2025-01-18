@@ -512,7 +512,10 @@ const closeResult = () => {
     globalProps.el.prizeShow.classList.add(`hide-g`);
     globalProps.el.runningMusic.pause()
     globalProps.el.runningSpecialMusic.pause()
-    globalProps.el.resultMusic.pause()
+    // globalProps.el.resultMusic.pause()
+    // 保证音乐一直播放
+    globalProps.el.runningMusic.currentTime = 1.5
+    globalProps.el.runningMusic.play()
     globalProps.nowPrizeObj = [];
     globalProps.nowLuckMemberIndexArr = [];
     globalProps.isRedrawMode = false; // 重置续抽模式
@@ -781,6 +784,14 @@ const downloadCSV = (content, filename) => {
 
 // 重置所有数据
 const resetAll = () => {
+    if (!confirm('确定要重置所有数据吗？这将清空所有抽奖记录！')) {
+        return;
+    }
+    
+    if (!confirm('再次确认是否重置？重置后数据将无法恢复！')) {
+        return;
+    }
+
     localStorage.removeItem(globalProps.storageKey.luckMemberIndexArr);
     localStorage.removeItem(globalProps.storageKey.hiddenLuckMemberIndexArr);
     localStorage.removeItem(globalProps.storageKey.prizeIndex);
