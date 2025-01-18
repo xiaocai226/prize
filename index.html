@@ -18,6 +18,15 @@
     <!-- 奖品列表 -->
     <div class="prize-table hide-g" id="prizeShow"></div>
     <div class="prize">
+        <a id="resetBtn" class="button-g error">重置</a>
+        <div class="export-container">
+            <a class="export-btn">导出名单</a>
+            <div class="export-dropdown">
+                <div class="export-item" onclick="exportLuckMemberList(false)">中奖名单</div>
+                <div class="export-item" onclick="exportNotLuckMemberList(false)">未中奖名单</div>
+                <div class="export-item" onclick="exportLuckMemberList(true)">隐藏奖名单</div>
+            </div>
+        </div>
         <div id="showPrizeImgBtn" class="button-g error">
             奖品图片
             <p id="prizeLevel" class="hide-g">
@@ -36,7 +45,6 @@
         <input id="memberNumInput" placeholder="抽奖人数" value="1" class="input"/>
         <a id="startBtn" class="button-g primary">开始</a>
         <a id="pauseBtn" class="button-g success hide-g">停止</a>
-        <a id="resetBtn" class="button-g error">重置</a>
     </div>
     <audio src="./statics/audio/running.mp3" controls="controls" preload id="runningMusic" hidden loop="loop" autoplay></audio>
     <audio src="./statics/audio/running-special.flac" controls="controls" preload id="runningSpecialMusic" hidden loop="loop"></audio>

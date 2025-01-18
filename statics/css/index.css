@@ -171,6 +171,24 @@ body {
     max-width: calc(50% - 24px);
 }
 
+#resetBtn {
+    position: absolute;
+    top: -700px;  /* 调整到顶部位置 */
+    left: 0;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.1);  /* 半透明背景 */
+    border: 1px solid rgba(255, 255, 255, 0.2);  /* 淡化边框 */
+    color: rgba(255, 255, 255, 0.4);  /* 淡化文字颜色 */
+    transition: all 0.3s ease;  /* 添加过渡效果 */
+    margin-right: 15px; /* Add margin to the right */
+}
+
+#resetBtn:hover {
+    background: rgba(255, 135, 135, 0.8);  /* 悬停时显示原来的红色 */
+    border-color: rgba(255, 107, 107, 0.8);
+    color: #fff;
+}
+
 #result {
     position: absolute;
     width: 2800px;
@@ -795,4 +813,66 @@ body {
 
 .tableCont::-webkit-scrollbar-thumb:hover {
     background: rgba(229, 110, 110, 0.8);
+}
+
+/* Add styles for export button and dropdown */
+.export-container {
+    position: absolute;
+    top: -700px;
+    left: 80px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+}
+
+.export-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+}
+
+.export-btn:hover {
+    background: rgba(77, 171, 247, 0.8);
+    border-color: rgba(51, 154, 240, 0.8);
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.export-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 160px;
+    margin-top: 5px;
+    border: 1px solid rgba(77, 171, 247, 0.2);
+}
+
+.export-container:hover .export-dropdown {
+    display: block;
+}
+
+.export-item {
+    padding: 8px 16px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.export-item:hover {
+    background: rgba(77, 171, 247, 0.3);
+    color: #fff;
 }
