@@ -480,29 +480,29 @@ const showNewLuckMemberResult = () => {
     globalProps.el.mask.classList.remove(`hide-g`);
     globalProps.el.result.classList.remove(`hide-g`);
     
-    // 延时截图
-    setTimeout(() => {
+    // // 延时截图
+    // setTimeout(() => {
         
-        if (!globalProps.isHiddenPrize) {
-            // 检查是否所有常规奖品都已抽完
-            const prizeIndexStr = localStorage.getItem(globalProps.storageKey.prizeIndex);
-            const prizeIndexArr = prizeIndexStr ? prizeIndexStr.split(',') : [];
+    //     if (!globalProps.isHiddenPrize) {
+    //         // 检查是否所有常规奖品都已抽完
+    //         const prizeIndexStr = localStorage.getItem(globalProps.storageKey.prizeIndex);
+    //         const prizeIndexArr = prizeIndexStr ? prizeIndexStr.split(',') : [];
             
-            // 计算所有常规奖品的总数
-            const totalRegularPrizes = prizeList.length;
+    //         // 计算所有常规奖品的总数
+    //         const totalRegularPrizes = prizeList.length;
             
-            // 如果已抽取的奖品数等于总奖品数，说明所有常规奖品都抽完了
-            if (prizeIndexArr.length === totalRegularPrizes) {
-                // 导出中奖和未中奖名单
-                exportLuckMemberList(false);
-                exportNotLuckMemberList(false);
-            }
-        } else {
-            // 隐藏奖的导出逻辑保持不变
-            exportNotLuckMemberList(globalProps.isHiddenPrize);
-            exportLuckMemberList(globalProps.isHiddenPrize);
-        }
-    }, 300);
+    //         // 如果已抽取的奖品数等于总奖品数，说明所有常规奖品都抽完了
+    //         if (prizeIndexArr.length === totalRegularPrizes) {
+    //             // 导出中奖和未中奖名单
+    //             exportLuckMemberList(false);
+    //             exportNotLuckMemberList(false);
+    //         }
+    //     } else {
+    //         // 隐藏奖的导出逻辑保持不变
+    //         exportNotLuckMemberList(globalProps.isHiddenPrize);
+    //         exportLuckMemberList(globalProps.isHiddenPrize);
+    //     }
+    // }, 300);
 }
 
 // 关闭抽奖结果
@@ -677,143 +677,104 @@ const updateRedrawCount = () => {
 
 // 修改导出未中奖名单函数
 const exportNotLuckMemberList = (isHidden = false) => {
-    // 根据是否是隐藏奖选择对应的存储键
-    const storageKey = isHidden ? 
-        globalProps.storageKey.hiddenLuckMemberIndexArr : 
-        globalProps.storageKey.luckMemberIndexArr;
+    // 获取所有中奖记录
+    const regularLuckMemberStr = localStorage.getItem(globalProps.storageKey.luckMemberIndexArr);
+    const hiddenLuckMemberStr = localStorage.getItem(globalProps.storageKey.hiddenLuckMemberIndexArr);
     
-    const luckMemberArrStr = localStorage.getItem(storageKey);
-    const luckMemberArr = luckMemberArrStr ? JSON.parse(luckMemberArrStr) : [];
-    const luckMemberNames = luckMemberArr.map(member => member.name);
+    // 合并所有中奖者名单
+    const regularLuckMembers = regularLuckMemberStr ? JSON.parse(regularLuckMemberStr) : [];
+    const hiddenLuckMembers = hiddenLuckMemberStr ? JSON.parse(hiddenLuckMemberStr) : [];
+    const allWinners = [...regularLuckMembers, ...hiddenLuckMembers];
+    const winnerNames = allWinners.map(member => member.name);
     
     // 过滤出未中奖名单
-    const notLuckMemberList = memberList.filter(member => {
-        return !luckMemberNames.includes(member.name);
-    });
+    const notLuckMemberList = memberList.filter(member => !winnerNames.includes(member.name));
 
-    // 如果没有未中奖人员，直接返回
     if (notLuckMemberList.length === 0) {
+        alert('当前没有未中奖人员！');
         return;
     }
 
     // 生成CSV内容
-    let csvContent = '姓名\n'; // CSV头部
-    notLuckMemberList.forEach(member => {
-        csvContent += `${member.name}\n`; // 每行添加一个名字
+    let csvContent = '序号,姓名\n';
+    notLuckMemberList.forEach((member, index) => {
+        csvContent += `${index + 1},${member.name}\n`;
     });
 
-    // 添加 BOM 头，确保Excel正确识别中文
-    const BOM = '\uFEFF';
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-
-    // 创建下载链接
-    const link = document.createElement('a');
-    link.href = url;
-    const prefix = isHidden ? '隐藏奖_' : '常规奖_';
+    // 导出文件
     const date = new Date();
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const formattedDate = `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
-    link.download = `${prefix}未中奖名单_${formattedDate}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    
-    // 清理
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    downloadCSV(csvContent, `未中奖名单_${formattedDate}.csv`);
 };
 
 // 修改导出中奖名单函数
 const exportLuckMemberList = (isHidden = false) => {
     if (isHidden) {
-        // 获取历史隐藏奖记录
+        // 导出隐藏奖名单
         const hiddenRecordsStr = localStorage.getItem(globalProps.storageKey.hiddenPrizeRecords);
         const hiddenRecords = hiddenRecordsStr ? JSON.parse(hiddenRecordsStr) : [];
-        
-        // 检查是否有中奖记录
-        if (hiddenRecords.length === 0 && globalProps.nowHiddenLuckMemberIndexArr.length === 0) {
+
+        if (hiddenRecords.length === 0) {
+            alert('当前没有隐藏奖中奖记录！');
             return;
         }
 
-        // 隐藏奖的CSV格式
-        let csvContent = '奖项,中奖人员,奖品内容\n';
-        
-        // 添加历史记录
-        hiddenRecords.forEach(record => {
-            const winners = record.winners.map(w => w.name);
-            csvContent += `隐藏奖,${winners.join('、')},${record.amount}\n`;
+        let csvContent = '序号,中奖人员,奖品内容,抽取时间\n';
+        hiddenRecords.forEach((record, index) => {
+            const winners = record.winners.map(index => memberList[index].name);
+            const date = new Date(record.date || new Date()).toLocaleString('zh-CN');
+            csvContent += `${index + 1},${winners.join('、')},${record.amount},${date}\n`;
         });
 
-        // 输出CSV
-        outputCSV(csvContent, isHidden);
+        const date = new Date();
+        const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        downloadCSV(csvContent, `隐藏奖中奖名单_${formattedDate}.csv`);
     } else {
-        // 常规奖的处理逻辑
-        const luckMemberArrStr = localStorage.getItem(globalProps.storageKey.luckMemberIndexArr);
-        const luckMemberArr = luckMemberArrStr ? JSON.parse(luckMemberArrStr) : [];
-        const prizeIndexStr = localStorage.getItem(globalProps.storageKey.prizeIndex);
-        const prizeIndexArr = prizeIndexStr ? prizeIndexStr.split(',') : [];
+        // 导出常规奖中奖名单
+        const prizeDrawRecordsStr = localStorage.getItem(globalProps.storageKey.prizeDrawRecords);
+        const redrawRecordsStr = localStorage.getItem(globalProps.storageKey.redrawRecords);
+        
+        const prizeDrawRecords = prizeDrawRecordsStr ? JSON.parse(prizeDrawRecordsStr) : [];
+        const redrawRecords = redrawRecordsStr ? JSON.parse(redrawRecordsStr) : [];
 
-        if (luckMemberArr.length === 0) {
+        if (prizeDrawRecords.length === 0 && redrawRecords.length === 0) {
+            alert('当前没有常规奖中奖记录！');
             return;
         }
 
-        // 获取续抽记录
-        const redrawRecordsStr = localStorage.getItem(globalProps.storageKey.redrawRecords);
-        const redrawRecords = redrawRecordsStr ? JSON.parse(redrawRecordsStr) : [];
+        let csvContent = '序号,奖项,中奖人员,类型,抽取时间\n';
+        let index = 1;
 
-        // 常规奖的CSV格式
-        let csvContent = '奖项,中奖人员,类型,抽取时间\n';
-        let currentIndex = 0;
-
-        // 处理常规中奖记录
-        prizeIndexArr.forEach(prizeId => {
-            const prize = prizeList.find(p => p.id.toString() === prizeId);
-            if (prize) {
-                const winners = luckMemberArr
-                    .slice(currentIndex, currentIndex + prize.memberNum)
-                    .map(member => member.name);
-                
-                csvContent += `${prize.level} - ${prize.name},${winners.join('、')},常规,首次抽取\n`;
-                currentIndex += prize.memberNum;
-            }
+        // 添加首次抽奖记录
+        prizeDrawRecords.forEach(record => {
+            const winners = record.winners.map(w => w.name);
+            const date = new Date(record.date).toLocaleString('zh-CN');
+            csvContent += `${index++},${record.prize.level} - ${record.prize.name},${winners.join('、')},首次抽取,${date}\n`;
         });
 
         // 添加续抽记录
         redrawRecords.forEach(record => {
-            const formattedDate = new Date(record.date).toLocaleString('zh-CN');
-            record.prizes.forEach(prize => {
-                const winners = record.winners.map(w => w.name);
-                csvContent += `${prize.level} - ${prize.name},${winners.join('、')},续抽,${formattedDate}\n`;
-            });
+            const winners = record.winners.map(w => w.name);
+            const date = new Date(record.date).toLocaleString('zh-CN');
+            csvContent += `${index++},${record.prize.level} - ${record.prize.name},${winners.join('、')},续抽,${date}\n`;
         });
 
-        // 输出CSV
-        outputCSV(csvContent, isHidden);
+        const date = new Date();
+        const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        downloadCSV(csvContent, `常规奖中奖名单_${formattedDate}.csv`);
     }
 };
 
-// 辅助函数：输出CSV文件
-const outputCSV = (csvContent, isHidden) => {
-    const BOM = '\uFEFF';
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8' });
+// 辅助函数：下载CSV文件
+const downloadCSV = (content, filename) => {
+    const BOM = '\uFEFF'; // 添加BOM头，解决中文乱码
+    const blob = new Blob([BOM + content], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-
-    // 创建下载链接
     const link = document.createElement('a');
     link.href = url;
-    const prefix = isHidden ? '隐藏奖_' : '常规奖_';
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const formattedDate = `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
-    link.download = `${prefix}中奖名单_${formattedDate}.csv`;
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
-    
-    // 清理
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 };
