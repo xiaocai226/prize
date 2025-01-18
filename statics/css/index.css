@@ -851,7 +851,7 @@ body {
 .export-dropdown {
     display: none;
     position: absolute;
-    top: 100%;
+    top: calc(100% - 5px);  /* 减少与按钮的间距 */
     left: 0;
     background: rgba(0, 0, 0, 0.8);
     border-radius: 8px;
@@ -859,10 +859,29 @@ body {
     min-width: 160px;
     margin-top: 5px;
     border: 1px solid rgba(77, 171, 247, 0.2);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;  /* 初始状态不接受鼠标事件 */
 }
 
-.export-container:hover .export-dropdown {
+.export-container:hover .export-dropdown,
+.export-dropdown:hover {
     display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;  /* 显示时接受鼠标事件 */
+}
+
+/* 添加一个透明的缓冲区域 */
+.export-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -20px;  /* 向上延伸20px */
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: transparent;
 }
 
 .export-item {
@@ -870,9 +889,27 @@ body {
     color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     transition: all 0.3s ease;
+    white-space: nowrap;  /* 防止文字换行 */
 }
 
 .export-item:hover {
     background: rgba(77, 171, 247, 0.3);
     color: #fff;
+}
+
+/* 添加动画效果 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.export-dropdown.show {
+    display: block;
+    animation: fadeInUp 0.3s ease forwards;
 }

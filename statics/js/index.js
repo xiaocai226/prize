@@ -795,6 +795,33 @@ const init = () => {
     canvasInit()
     operateInit()
     prizeInit()
+    
+    // 添加导出按钮点击事件
+    const exportBtn = document.querySelector('.export-btn');
+    const exportDropdown = document.querySelector('.export-dropdown');
+    let isDropdownVisible = false;
+
+    // 点击导出按钮时切换下拉菜单
+    exportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        isDropdownVisible = !isDropdownVisible;
+        if (isDropdownVisible) {
+            exportDropdown.classList.add('show');
+        } else {
+            exportDropdown.classList.remove('show');
+        }
+    });
+
+    // 点击下拉菜单项时不关闭菜单
+    exportDropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    // 点击页面其他地方时关闭下拉菜单
+    document.addEventListener('click', () => {
+        isDropdownVisible = false;
+        exportDropdown.classList.remove('show');
+    });
 }
 
 init()
