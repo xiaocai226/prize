@@ -311,16 +311,29 @@ body {
     opacity: 0.5;
 }
 
-.prize-table .row.disabled:before {
-    content: '';
-    display: block;
-    width: 96%;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.3);
-    position: absolute;
-    left: 2%;
-    top: 50%;
-    z-index: 9;
+.prize-table .row.disabled.highlight {
+    opacity: 1;
+    background: rgba(229, 110, 110, 0.15);
+}
+
+.prize-table .row.disabled.highlight:hover {
+    background: rgba(229, 110, 110, 0.25);
+}
+
+.prize-table .row .redraw-input {
+    width: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    color: #fff;
+    padding: 2px 6px;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.prize-table .row .redraw-input:focus {
+    border-color: #e56e6e;
+    outline: none;
 }
 
 .prize-table input[type="checkbox"] {
@@ -379,6 +392,20 @@ body {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 16px 16px 0 0;
     color: #fff;
+}
+
+.tableTitle .title-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.tableTitle .title-button {
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.tableTitle .title-button:hover {
+    color: #e56e6e;
 }
 
 .tableCont {

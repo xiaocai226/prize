@@ -4,6 +4,8 @@ const globalProps = {
         prizeIndex: `prizeIndex`,// 已抽奖品
         hiddenLuckMemberIndexArr: 'hiddenLuckMemberIndexArr', // 已抽隐藏奖名单
         hiddenPrizeRecords: 'hiddenPrizeRecords', // 新增：存储隐藏奖记录（包含金额）
+        redrawRecords: 'redrawRecords', // 新增：存储续抽记录
+        prizeTotalCounts: 'prizeTotalCounts', // 新增：存储每个奖项的实际总人数
     },
     el: {},
     nowLuckMemberIndexArr: [],// 当前抽奖名单
@@ -12,6 +14,7 @@ const globalProps = {
     running: false,// 抽奖进行与否
     hiddenPrizeAmount: 0, // 隐藏奖金额
     isHiddenPrize: false, // 是否在抽隐藏奖
+    isRedrawMode: false, // 是否处于续抽模式
 }
 globalProps.el.prizeImg = document.getElementById(`prizeImg`)
 globalProps.el.mask = document.getElementById(`mask`)
@@ -153,7 +156,7 @@ const getPrizeIndex = () => {
 // 开始抽奖
 const luckDrawStart = () => {
     // 检查是否选择了奖品
-    if (globalProps.nowPrizeObj.length === 0) {
+    if (globalProps.nowPrizeObj.length === 0 && !globalProps.isRedrawMode) {
         const confirmHidden = confirm(`当前未选择奖品，且抽奖人数为 ${getMemberNumInputVal()}，是否要抽取隐藏奖？`);
         if (!confirmHidden) {
             return; // 如果用户点击取消，则终止抽奖
@@ -184,26 +187,75 @@ const luckDrawStart = () => {
         globalProps.storageKey.hiddenLuckMemberIndexArr : 
         globalProps.storageKey.luckMemberIndexArr;
     
-    const luckMemberIndexArrStr = localStorage.getItem(storageKey);
-    const luckMemberIndexArr = luckMemberIndexArrStr ? JSON.parse(luckMemberIndexArrStr) : [];
+    const luckMemberArrStr = localStorage.getItem(storageKey);
+    const luckMemberArr = luckMemberArrStr ? JSON.parse(luckMemberArrStr) : [];
+    
+    // 获取已中奖的名字列表
+    const luckMemberNames = luckMemberArr.map(member => member.name);
 
     // 获取抽奖人数
     const newLuckNum = getMemberNumInputVal();
     
     // 如果已中奖人数等于总人数，则提示重置
-    if (luckMemberIndexArr.length === memberList.length) {
+    if (luckMemberArr.length === memberList.length) {
         alert(`所有人都已经中奖，请重置抽奖程序！`);
         return;
     }
-    if ((luckMemberIndexArr.length + newLuckNum) > memberList.length) {
+    if ((luckMemberArr.length + newLuckNum) > memberList.length) {
         alert(`当前抽奖人数超过剩余未中奖人数！`);
         return;
     }
 
     // 获取奖品
-    const prizeIndex = getPrizeIndex()
-    // 已抽奖品 存到本地
-    localStorage.setItem(globalProps.storageKey.prizeIndex, prizeIndex.toString());
+    if (globalProps.isRedrawMode) {
+        // 续抽模式：收集选中的奖品和数量
+        globalProps.nowPrizeObj = [];
+        const checkedPrizes = document.querySelectorAll('.prize-table .row.disabled input[type="checkbox"]:checked');
+        checkedPrizes.forEach(checkbox => {
+            const row = checkbox.closest('.row');
+            const redrawInput = row.querySelector('.redraw-input');
+            const prizeId = parseInt(checkbox.value);
+            const prize = prizeList.find(item => item.id === prizeId);
+            if (prize) {
+                const redrawCount = parseInt(redrawInput.value || 1);
+                prize.memberNum = redrawCount;
+                globalProps.nowPrizeObj.push({...prize});
+            }
+        });
+    }
+
+    // 检查并保存奖品ID，避免重复
+    const existingPrizeIndexStr = localStorage.getItem(globalProps.storageKey.prizeIndex);
+    const existingPrizeIds = existingPrizeIndexStr ? existingPrizeIndexStr.split(',').map(id => parseInt(id)) : [];
+    const newPrizeIds = globalProps.nowPrizeObj.map(prize => prize.id);
+    
+    // 只保存不在已存储列表中的新ID
+    const prizeIdsToSave = newPrizeIds.filter(id => !existingPrizeIds.includes(id));
+    
+    if (prizeIdsToSave.length > 0) {
+        const updatedPrizeIds = [...existingPrizeIds, ...prizeIdsToSave];
+        localStorage.setItem(globalProps.storageKey.prizeIndex, updatedPrizeIds.toString());
+    }
+
+    // 更新奖项总人数
+    const prizeTotalCountsStr = localStorage.getItem(globalProps.storageKey.prizeTotalCounts);
+    const prizeTotalCounts = prizeTotalCountsStr ? JSON.parse(prizeTotalCountsStr) : {};
+    
+    globalProps.nowPrizeObj.forEach(prize => {
+        if (!prizeTotalCounts[prize.id]) {
+            // 如果是首次抽取，使用原始人数
+            prizeTotalCounts[prize.id] = {
+                count: prize.memberNum,
+                name: prize.name,
+                level: prize.level
+            };
+        } else if (globalProps.isRedrawMode) {
+            // 如果是续抽，累加人数
+            prizeTotalCounts[prize.id].count += prize.memberNum;
+        }
+    });
+    
+    localStorage.setItem(globalProps.storageKey.prizeTotalCounts, JSON.stringify(prizeTotalCounts));
 
     globalProps.running = true;// 开始抽奖 抽奖进行中
     globalProps.el.runningMusic.pause()// 暂停背景音乐
@@ -219,15 +271,44 @@ const luckDrawStart = () => {
     let randomNum
     // 抽奖 直到抽奖人数等于抽奖人数
     while (globalProps.nowLuckMemberIndexArr.length !== newLuckNum) {
-        randomNum = Math.ceil(Math.random() * memberList.length)
-        randomNum = randomNum - 1
-        if (!luckMemberIndexArr.includes(randomNum)) {
-            globalProps.nowLuckMemberIndexArr.push(randomNum)
-            luckMemberIndexArr.push(randomNum)
+        randomNum = Math.ceil(Math.random() * memberList.length) - 1;
+        const memberName = memberList[randomNum].name;
+        if (!luckMemberNames.includes(memberName)) {
+            globalProps.nowLuckMemberIndexArr.push(randomNum);
+            // 无论是否是续抽模式，都将新中奖者添加到总名单中
+            luckMemberArr.push({
+                index: randomNum,
+                name: memberName
+            });
+            luckMemberNames.push(memberName);
         }
     }
-    // 已抽奖名单 存到本地
-    localStorage.setItem(storageKey, JSON.stringify(luckMemberIndexArr));
+
+    // 保存续抽记录
+    if (globalProps.isRedrawMode) {
+        const redrawRecordsStr = localStorage.getItem(globalProps.storageKey.redrawRecords);
+        const redrawRecords = redrawRecordsStr ? JSON.parse(redrawRecordsStr) : [];
+        
+        const newRedrawRecord = {
+            date: new Date().toISOString(),
+            prizes: globalProps.nowPrizeObj.map(prize => ({
+                id: prize.id,
+                name: prize.name,
+                level: prize.level,
+                count: prize.memberNum
+            })),
+            winners: globalProps.nowLuckMemberIndexArr.map(index => ({
+                index,
+                name: memberList[index].name
+            }))
+        };
+        
+        redrawRecords.push(newRedrawRecord);
+        localStorage.setItem(globalProps.storageKey.redrawRecords, JSON.stringify(redrawRecords));
+    }
+
+    // 无论是否是续抽模式，都更新总中奖名单
+    localStorage.setItem(storageKey, JSON.stringify(luckMemberArr));
 
     // 更新对应的当前抽奖名单
     if (globalProps.isHiddenPrize) {
@@ -396,6 +477,7 @@ const closeResult = () => {
     globalProps.el.resultMusic.pause()
     globalProps.nowPrizeObj = [];
     globalProps.nowLuckMemberIndexArr = [];
+    globalProps.isRedrawMode = false; // 重置续抽模式
     
     // 重置输入框值为1
     globalProps.el.memberNumInput.value = "1";
@@ -424,19 +506,31 @@ const prizeShow = () => {
     if(localStorage.getItem(globalProps.storageKey.prizeIndex)){
         prizeIndexArr=localStorage.getItem(globalProps.storageKey.prizeIndex).split(`,`)
     }
+
+    // 获取每个奖项的实际总人数
+    const prizeTotalCountsStr = localStorage.getItem(globalProps.storageKey.prizeTotalCounts);
+    const prizeTotalCounts = prizeTotalCountsStr ? JSON.parse(prizeTotalCountsStr) : {};
+
     let prizeRowHtml = ``
     prizeList.forEach(item => {
-        prizeRowHtml += `<div class="row ${prizeIndexArr.includes(item.id.toString())?'disabled':''}">
-                            <span><input type="checkbox" ${prizeIndexArr.includes(item.id.toString())?'disabled':''} value="${item.id}" name="prize-id"></span>
+        const isDrawn = prizeIndexArr.includes(item.id.toString());
+        const totalCount = prizeTotalCounts[item.id] ? prizeTotalCounts[item.id].count : item.memberNum;
+        
+        prizeRowHtml += `<div class="row ${isDrawn ? 'disabled' : ''}">
+                            <span><input type="checkbox" ${isDrawn ? 'disabled' : ''} value="${item.id}" name="prize-id"></span>
                             <span>${item.level}</span>
                             <span>${item.name}</span>
-                            <span>${item.memberNum}</span>
+                            <span>${totalCount}</span>
+                            ${isDrawn ? `<input type="number" class="redraw-input hide-g" min="1" max="${item.memberNum}" value="1">` : ''}
                         </div>`
     })
 
     let prizeTdHtml=`<div class="tableTitle">
                         <span>奖品列表</span>
-                        <span id="hidePrizeBtn">关闭</span>
+                        <div class="title-buttons">
+                            ${prizeIndexArr.length > 0 ? '<span id="redrawBtn" class="title-button">续抽</span>' : ''}
+                            <span id="hidePrizeBtn" class="title-button">关闭</span>
+                        </div>
                     </div>
                     <div class="tableCont">
                         ${prizeRowHtml}
@@ -447,30 +541,100 @@ const prizeShow = () => {
     const hidePrizeBtnEl = document.getElementById(`hidePrizeBtn`)
     hidePrizeBtnEl.addEventListener(`click`, () => {
         globalProps.el.prizeShow.classList.add(`hide-g`)
+        globalProps.isRedrawMode = false
     })
+
+    if (prizeIndexArr.length > 0) {
+        const redrawBtnEl = document.getElementById(`redrawBtn`)
+        redrawBtnEl.addEventListener(`click`, toggleRedrawMode)
+    }
 
     //再添加input的点击事件 更新抽奖人数
     const prizeIdInputEls = document.getElementsByName(`prize-id`)
     prizeIdInputEls.forEach(prizeIdInputEl => {
         prizeIdInputEl.addEventListener(`click`, () => {
-            const prizeId = parseInt(prizeIdInputEl.value)
-            if (prizeIdInputEl.checked) {
-                globalProps.nowPrizeObj.push(prizeList.find(item => item.id === prizeId))
+            if (globalProps.isRedrawMode) {
+                const row = prizeIdInputEl.closest('.row')
+                const redrawInput = row.querySelector('.redraw-input')
+                if (prizeIdInputEl.checked) {
+                    redrawInput.classList.remove('hide-g')
+                    updateRedrawCount()
+                } else {
+                    redrawInput.classList.add('hide-g')
+                    updateRedrawCount()
+                }
             } else {
-                globalProps.nowPrizeObj = globalProps.nowPrizeObj.filter(item => item.id !== prizeId)
+                const prizeId = parseInt(prizeIdInputEl.value)
+                if (prizeIdInputEl.checked) {
+                    globalProps.nowPrizeObj.push(prizeList.find(item => item.id === prizeId))
+                } else {
+                    globalProps.nowPrizeObj = globalProps.nowPrizeObj.filter(item => item.id !== prizeId)
+                }
+
+                //更新memberNumInput的值 更新抽奖人数
+                let nowPrizeObjCount = 0
+                globalProps.nowPrizeObj.forEach(item => {
+                    nowPrizeObjCount += item.memberNum
+                })
+                globalProps.el.memberNumInput.value = nowPrizeObjCount
             }
-
-            //更新memberNumInput的值 更新抽奖人数
-            let nowPrizeObjCount = 0
-            globalProps.nowPrizeObj.forEach(item => {
-                nowPrizeObjCount += item.memberNum
-            })
-            globalProps.el.memberNumInput.value = nowPrizeObjCount
-
         })
     })
 
+    // 为续抽数量输入框添加事件监听
+    const redrawInputs = document.querySelectorAll('.redraw-input')
+    redrawInputs.forEach(input => {
+        input.addEventListener('input', updateRedrawCount)
+    })
+
     globalProps.el.prizeShow.classList.remove(`hide-g`)
+}
+
+// 切换续抽模式
+const toggleRedrawMode = () => {
+    globalProps.isRedrawMode = !globalProps.isRedrawMode
+    const rows = document.querySelectorAll('.prize-table .row.disabled')
+    const redrawBtn = document.getElementById('redrawBtn')
+    
+    rows.forEach(row => {
+        const checkbox = row.querySelector('input[type="checkbox"]')
+        const redrawInput = row.querySelector('.redraw-input')
+        
+        if (globalProps.isRedrawMode) {
+            row.classList.add('highlight')
+            checkbox.disabled = false
+            if (checkbox.checked) {
+                redrawInput.classList.remove('hide-g')
+            }
+        } else {
+            row.classList.remove('highlight')
+            checkbox.disabled = true
+            checkbox.checked = false
+            redrawInput.classList.add('hide-g')
+        }
+    })
+    
+    redrawBtn.style.color = globalProps.isRedrawMode ? '#e56e6e' : ''
+    updateRedrawCount()
+}
+
+// 更新续抽数量
+const updateRedrawCount = () => {
+    if (!globalProps.isRedrawMode) {
+        globalProps.el.memberNumInput.value = "1"
+        return
+    }
+    
+    let totalCount = 0
+    const checkedPrizes = document.querySelectorAll('.prize-table .row.disabled input[type="checkbox"]:checked')
+    
+    checkedPrizes.forEach(checkbox => {
+        const row = checkbox.closest('.row')
+        const redrawInput = row.querySelector('.redraw-input')
+        totalCount += parseInt(redrawInput.value || 0)
+    })
+    
+    globalProps.el.memberNumInput.value = totalCount || "1"
 }
 
 // 修改导出未中奖名单函数
@@ -480,12 +644,13 @@ const exportNotLuckMemberList = (isHidden = false) => {
         globalProps.storageKey.hiddenLuckMemberIndexArr : 
         globalProps.storageKey.luckMemberIndexArr;
     
-    const luckMemberIndexArrStr = localStorage.getItem(storageKey);
-    const luckMemberIndexArr = luckMemberIndexArrStr ? JSON.parse(luckMemberIndexArrStr) : [];
+    const luckMemberArrStr = localStorage.getItem(storageKey);
+    const luckMemberArr = luckMemberArrStr ? JSON.parse(luckMemberArrStr) : [];
+    const luckMemberNames = luckMemberArr.map(member => member.name);
     
     // 过滤出未中奖名单
-    const notLuckMemberList = memberList.filter((member, index) => {
-        return !luckMemberIndexArr.includes(index);
+    const notLuckMemberList = memberList.filter(member => {
+        return !luckMemberNames.includes(member.name);
     });
 
     // 如果没有未中奖人员，直接返回
@@ -539,7 +704,7 @@ const exportLuckMemberList = (isHidden = false) => {
         
         // 添加历史记录
         hiddenRecords.forEach(record => {
-            const winners = record.winners.map(index => memberList[index].name);
+            const winners = record.winners.map(w => w.name);
             csvContent += `隐藏奖,${winners.join('、')},${record.amount}\n`;
         });
 
@@ -547,34 +712,43 @@ const exportLuckMemberList = (isHidden = false) => {
         outputCSV(csvContent, isHidden);
     } else {
         // 常规奖的处理逻辑
-        const luckMemberIndexArrStr = localStorage.getItem(globalProps.storageKey.luckMemberIndexArr);
-        const luckMemberArr = luckMemberIndexArrStr ? JSON.parse(luckMemberIndexArrStr) : [];
+        const luckMemberArrStr = localStorage.getItem(globalProps.storageKey.luckMemberIndexArr);
+        const luckMemberArr = luckMemberArrStr ? JSON.parse(luckMemberArrStr) : [];
         const prizeIndexStr = localStorage.getItem(globalProps.storageKey.prizeIndex);
         const prizeIndexArr = prizeIndexStr ? prizeIndexStr.split(',') : [];
-        console.log(luckMemberIndexArrStr,'已中奖名单')
-        console.log(luckMemberArr,'已中奖名单数组')
-        console.log(prizeIndexStr,'已中奖奖品')
-        console.log(prizeIndexArr,'已中奖奖品数组')
 
         if (luckMemberArr.length === 0) {
             return;
         }
 
+        // 获取续抽记录
+        const redrawRecordsStr = localStorage.getItem(globalProps.storageKey.redrawRecords);
+        const redrawRecords = redrawRecordsStr ? JSON.parse(redrawRecordsStr) : [];
+
         // 常规奖的CSV格式
-        let csvContent = '奖项,中奖人员\n';
+        let csvContent = '奖项,中奖人员,类型,抽取时间\n';
         let currentIndex = 0;
 
-        // 按照抽奖顺序处理奖品
+        // 处理常规中奖记录
         prizeIndexArr.forEach(prizeId => {
             const prize = prizeList.find(p => p.id.toString() === prizeId);
             if (prize) {
                 const winners = luckMemberArr
                     .slice(currentIndex, currentIndex + prize.memberNum)
-                    .map(index => memberList[index].name);
+                    .map(member => member.name);
                 
-                csvContent += `${prize.level} - ${prize.name},${winners.join('、')}\n`;
+                csvContent += `${prize.level} - ${prize.name},${winners.join('、')},常规,首次抽取\n`;
                 currentIndex += prize.memberNum;
             }
+        });
+
+        // 添加续抽记录
+        redrawRecords.forEach(record => {
+            const formattedDate = new Date(record.date).toLocaleString('zh-CN');
+            record.prizes.forEach(prize => {
+                const winners = record.winners.map(w => w.name);
+                csvContent += `${prize.level} - ${prize.name},${winners.join('、')},续抽,${formattedDate}\n`;
+            });
         });
 
         // 输出CSV
@@ -611,7 +785,9 @@ const resetAll = () => {
     localStorage.removeItem(globalProps.storageKey.luckMemberIndexArr);
     localStorage.removeItem(globalProps.storageKey.hiddenLuckMemberIndexArr);
     localStorage.removeItem(globalProps.storageKey.prizeIndex);
-    localStorage.removeItem(globalProps.storageKey.hiddenPrizeRecords); // 清空隐藏奖记录
+    localStorage.removeItem(globalProps.storageKey.hiddenPrizeRecords);
+    localStorage.removeItem(globalProps.storageKey.redrawRecords);
+    localStorage.removeItem(globalProps.storageKey.prizeTotalCounts); // 清空奖项总人数记录
     location.reload();
 };
 
