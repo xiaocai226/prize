@@ -50,12 +50,19 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 12px;
-    border-radius: 4px;
+    padding: 8px 16px;
+    border-radius: 20px;
     cursor: pointer;
     color: #333;
     line-height: 16px;
     user-select: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.button-g:hover {
+    transform: scale(1.05);
 }
 
 .button-g + .button-g {
@@ -63,23 +70,43 @@ body {
 }
 
 .button-g.primary {
-    background: #1890ff;
+    background: #4dabf7;
     color: #fff;
+    border-color: #339af0;
+}
+
+.button-g.primary:hover {
+    background: #339af0;
 }
 
 .button-g.success {
-    background: #52c41a;;
+    background: #69db7c;
     color: #fff;
+    border-color: #51cf66;
+}
+
+.button-g.success:hover {
+    background: #51cf66;
 }
 
 .button-g.warning {
-    background: #faad14;
+    background: #ffd43b;
     color: #fff;
+    border-color: #fcc419;
+}
+
+.button-g.warning:hover {
+    background: #fcc419;
 }
 
 .button-g.error {
-    background: #f5222d;
+    background: #ff8787;
     color: #fff;
+    border-color: #ff6b6b;
+}
+
+.button-g.error:hover {
+    background: #ff6b6b;
 }
 
 #hidePrizeBtn{
@@ -223,14 +250,18 @@ body {
 }
 
 .operate .input {
-    display: block;
     width: 80px;
     background: #fff;
     padding: 8px 12px;
-    border-radius: 4px;
-    box-shadow: none;
-    border: none;
+    border-radius: 20px;
+    border: 2px solid #e9ecef;
     outline: none;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.operate .input:focus {
+    border-color: #4dabf7;
 }
 
 .operate #startBtn {
