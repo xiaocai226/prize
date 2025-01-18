@@ -1,11 +1,12 @@
 const globalProps = {
     storageKey: {
         luckMemberIndexArr: `luckMemberIndexArr`,// 已抽奖名单
-        prizeIndex: `prizeIndex`,// 已抽奖品
+        prizeIndex: `prizeIndex`,// 已抽奖品索引
         hiddenLuckMemberIndexArr: 'hiddenLuckMemberIndexArr', // 已抽隐藏奖名单
-        hiddenPrizeRecords: 'hiddenPrizeRecords', // 新增：存储隐藏奖记录（包含金额）
-        redrawRecords: 'redrawRecords', // 新增：存储续抽记录
-        prizeTotalCounts: 'prizeTotalCounts', // 新增：存储每个奖项的实际总人数
+        hiddenPrizeRecords: 'hiddenPrizeRecords', // 存储隐藏奖记录（包含金额）
+        redrawRecords: 'redrawRecords', // 存储续抽记录
+        prizeTotalCounts: 'prizeTotalCounts', // 存储每个奖项的实际总人数
+        prizeDrawRecords: 'prizeDrawRecords', // 存储每个奖品的原始抽奖记录
     },
     el: {},
     nowLuckMemberIndexArr: [],// 当前抽奖名单
@@ -255,6 +256,7 @@ const luckDrawStart = () => {
         }
     });
     
+    // 存储每个奖项的实际总人数
     localStorage.setItem(globalProps.storageKey.prizeTotalCounts, JSON.stringify(prizeTotalCounts));
 
     globalProps.running = true;// 开始抽奖 抽奖进行中
@@ -289,21 +291,33 @@ const luckDrawStart = () => {
         const redrawRecordsStr = localStorage.getItem(globalProps.storageKey.redrawRecords);
         const redrawRecords = redrawRecordsStr ? JSON.parse(redrawRecordsStr) : [];
         
-        const newRedrawRecord = {
-            date: new Date().toISOString(),
-            prizes: globalProps.nowPrizeObj.map(prize => ({
-                id: prize.id,
-                name: prize.name,
-                level: prize.level,
-                count: prize.memberNum
-            })),
-            winners: globalProps.nowLuckMemberIndexArr.map(index => ({
-                index,
-                name: memberList[index].name
-            }))
-        };
+        // 为每个奖品创建单独的续抽记录
+        let startIndex = 0;
+        const currentRedrawRecords = globalProps.nowPrizeObj.map(prize => {
+            // 找出这个奖品对应的中奖者
+            const prizeWinners = globalProps.nowLuckMemberIndexArr
+                .slice(startIndex, startIndex + prize.memberNum)
+                .map(index => ({
+                    index,
+                    name: memberList[index].name
+                }));
+            
+            // 更新开始索引
+            startIndex += prize.memberNum;
+            
+            return {
+                date: new Date().toISOString(),
+                prize: {
+                    id: prize.id,
+                    name: prize.name,
+                    level: prize.level
+                },
+                count: prize.memberNum,
+                winners: prizeWinners
+            };
+        });
         
-        redrawRecords.push(newRedrawRecord);
+        redrawRecords.push(...currentRedrawRecords);
         localStorage.setItem(globalProps.storageKey.redrawRecords, JSON.stringify(redrawRecords));
     }
 
@@ -313,6 +327,41 @@ const luckDrawStart = () => {
     // 更新对应的当前抽奖名单
     if (globalProps.isHiddenPrize) {
         globalProps.nowHiddenLuckMemberIndexArr = globalProps.nowLuckMemberIndexArr;
+    }
+
+    // 在 luckDrawStart 函数中添加存储原始抽奖记录的代码
+    if (!globalProps.isRedrawMode && !globalProps.isHiddenPrize) {
+        const prizeDrawRecordsStr = localStorage.getItem(globalProps.storageKey.prizeDrawRecords);
+        const prizeDrawRecords = prizeDrawRecordsStr ? JSON.parse(prizeDrawRecordsStr) : [];
+        
+        // 为每个奖品创建抽奖记录
+        let startIndex = 0;
+        const currentDrawRecords = globalProps.nowPrizeObj.map(prize => {
+            // 找出这个奖品对应的中奖者
+            const prizeWinners = globalProps.nowLuckMemberIndexArr
+                .slice(startIndex, startIndex + prize.memberNum)
+                .map(index => ({
+                    index,
+                    name: memberList[index].name
+                }));
+            
+            // 更新开始索引
+            startIndex += prize.memberNum;
+            
+            return {
+                date: new Date().toISOString(),
+                prize: {
+                    id: prize.id,
+                    name: prize.name,
+                    level: prize.level
+                },
+                count: prize.memberNum,
+                winners: prizeWinners
+            };
+        });
+        
+        prizeDrawRecords.push(...currentDrawRecords);
+        localStorage.setItem(globalProps.storageKey.prizeDrawRecords, JSON.stringify(prizeDrawRecords));
     }
 }
 
@@ -355,25 +404,19 @@ const luckDrawPause = () => {
 // 显示抽奖结果
 const showNewLuckMemberResult = () => {
     let resultHtml = ``;
-    let newLuckMember;
-    let newLuckMembers = globalProps.isHiddenPrize ? 
-        [...globalProps.nowHiddenLuckMemberIndexArr] : 
-        [...globalProps.nowLuckMemberIndexArr];
-    
-    // 无论是隐藏奖还是普通奖品，都使用相同的显示样式
     let prizeSectionsHtml = ``;
     
     if (globalProps.isHiddenPrize) {
         // 隐藏奖的显示逻辑
         let winnersHtml = ``;
-        newLuckMembers.forEach((newLuckMemberIndex) => {
-            newLuckMember = memberList[newLuckMemberIndex];
+        globalProps.nowHiddenLuckMemberIndexArr.forEach((index) => {
+            const winner = memberList[index];
             winnersHtml += `
                 <div class="winner-card">
                     <div class="winner-avatar">
-                        <img src="./statics/images/member/${newLuckMember.name}.png" alt="${newLuckMember.name}">
+                        <img src="./statics/images/member/${winner.name}.png" alt="${winner.name}">
                     </div>
-                    <div class="winner-name">${newLuckMember.name}</div>
+                    <div class="winner-name">${winner.name}</div>
                 </div>
             `;
         });
@@ -389,27 +432,28 @@ const showNewLuckMemberResult = () => {
             </div>
         `;
     } else {
-        // 普通奖品的显示逻辑（保持不变）
-        globalProps.nowPrizeObj.forEach(item => {
-            let winnersHtml = ``;
-            newLuckMembers.forEach((newLuckMemberIndex, index) => {
-                if (item.memberNum > index) {
-                    newLuckMember = memberList[newLuckMemberIndex];
-                    winnersHtml += `
-                        <div class="winner-card">
-                            <div class="winner-avatar">
-                                <img src="./statics/images/member/${newLuckMember.name}.png" alt="${newLuckMember.name}">
-                            </div>
-                            <div class="winner-name">${newLuckMember.name}</div>
+        // 普通奖品的显示逻辑
+        let startIndex = 0;
+        globalProps.nowPrizeObj.forEach(prize => {
+            const prizeWinners = globalProps.nowLuckMemberIndexArr
+                .slice(startIndex, startIndex + prize.memberNum);
+            
+            let winnersHtml = prizeWinners.map(index => {
+                const winner = memberList[index];
+                return `
+                    <div class="winner-card">
+                        <div class="winner-avatar">
+                            <img src="./statics/images/member/${winner.name}.png" alt="${winner.name}">
                         </div>
-                    `;
-                }
-            });
+                        <div class="winner-name">${winner.name}</div>
+                    </div>
+                `;
+            }).join('');
             
             prizeSectionsHtml += `
                 <div class="prize-section">
                     <div class="prize-image">
-                        <img src="./statics/images/prize-min/${item.id}.png" alt="${item.name}"/>
+                        <img src="./statics/images/prize-min/${prize.id}.png" alt="${prize.name}"/>
                     </div>
                     <div class="winners-grid">
                         ${winnersHtml}
@@ -417,7 +461,7 @@ const showNewLuckMemberResult = () => {
                 </div>
             `;
             
-            newLuckMembers.splice(0, item.memberNum);
+            startIndex += prize.memberNum;
         });
     }
 
@@ -438,13 +482,7 @@ const showNewLuckMemberResult = () => {
     
     // 延时截图
     setTimeout(() => {
-        // if (globalProps.nowPrizeObj.length && globalProps.nowPrizeObj[0].id === 1) {
-            // exportNotLuckMemberList(); // 特等奖抽完后导出未中奖名单
-            // exportLuckMemberList();// 导出中奖名单
-        // }
-        // 根据是否是隐藏奖调用对应的导出函数
-        // exportNotLuckMemberList(globalProps.isHiddenPrize);
-        // exportLuckMemberList(globalProps.isHiddenPrize);
+        
         if (!globalProps.isHiddenPrize) {
             // 检查是否所有常规奖品都已抽完
             const prizeIndexStr = localStorage.getItem(globalProps.storageKey.prizeIndex);
@@ -788,6 +826,7 @@ const resetAll = () => {
     localStorage.removeItem(globalProps.storageKey.hiddenPrizeRecords);
     localStorage.removeItem(globalProps.storageKey.redrawRecords);
     localStorage.removeItem(globalProps.storageKey.prizeTotalCounts); // 清空奖项总人数记录
+    localStorage.removeItem(globalProps.storageKey.prizeDrawRecords); // 清空每个奖品的原始抽奖记录
     location.reload();
 };
 
