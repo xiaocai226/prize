@@ -99,7 +99,6 @@ const memberList = [
     {name: "杨帅"},
     {name: "杨燕萍"},
     {name: "杨志伟"},
-    {name: "游嘉玮"},
     {name: "游舒同"},
     {name: "游政贤"},
     {name: "张佳萍"},
