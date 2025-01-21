@@ -262,7 +262,7 @@ body {
 .operate {
     position: absolute;
     bottom: 12px;
-    right: 12px;
+    left: 220px;  /* 调整到指定位置 */
     display: flex;
     align-items: center;
     z-index: 0;
