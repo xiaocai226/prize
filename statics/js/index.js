@@ -65,16 +65,54 @@ const canvasInit = () => {
     globalProps.el.main.appendChild(canvasEl)
     TagCanvas.Start("canvas", "", {
         initial: getCanvasSpeed(),
-        dragControl: 1,
-        textFont: null,
-        textColour: "＃fff",
-        // textHeight: 10,
-        // wheelZoom: false,
-        imageScale: 0.18, // 控制图片缩放比例
+        shuffleTags: true,// 随机排序
+        wheelZoom: false,// 鼠标滚轮缩放
+        // 圆形
+        dragControl: 1,// 拖拽控制
+        imageScale: 0.16, // 控制图片缩放比例
+        textFont: null,// 字体
+        textColour: "＃fff",// 文字颜色
+        // textHeight: 10,// 文字高度
         // imageRadius: 10, // 控制图片半径
         // imageMode: "both", // 同时显示图片和文字
         // imagePosition: "top", // 图片位置
         // outlineMethod: "none", // 移除轮廓
+
+        // 圆柱
+        // textColour: '#fff',
+        // outlineColour: '#ff00ff',
+        // reverse: true,
+        // depth: 0.8,
+        // maxSpeed: 0.05,
+        // weight: true,
+        // shape: 'vcylinder',
+        // noSelect: true,
+        // // textHeight: 14,// 文字高度
+        // // freezeActive: true,// 冻结选中
+        // stretchX: 1.8,// 拉伸x
+        // stretchY: 0.8,// 拉伸y
+
+        // // 垂直圆柱形
+        // // textColour: '#fff',
+        // // outlineColour: '#ff00ff',
+        // shape: 'vcylinder',  // 垂直圆柱形
+        // reverse: true,// 反向   
+        // depth: 0.1,// 深度
+        // // maxSpeed: 0.03,  // 降低速度使显示更清晰
+        // weight: true,// 权重
+        // noSelect: true,// 禁止选择
+        // // textHeight: 14,// 文字高度
+        // // freezeActive: true,// 冻结选中
+        // stretchX: 1.2,     // 减小水平拉伸，使其更协调
+
+        // stretchY: 1,       // 保持垂直方向正常
+        // radiusX: 1,        // 调整为相同的半径使其更稳定
+        // radiusY: 1,        // 调整为相同的半径使其更稳定
+        // radiusZ: 1,        // 调整为相同的半径使其更稳定
+        // zoom: 1,           // 正常缩放
+        // pinchZoom: true,   // 保持触摸缩放
+        // animTiming: 'Smooth',  // 平滑动画
+        // dragControl: false  // 禁用拖拽以保持稳定
     })
 }
 
@@ -894,6 +932,9 @@ const init = () => {
     // 添加导出按钮点击事件
     const exportBtn = document.querySelector('.export-btn');
     const exportDropdown = document.querySelector('.export-dropdown');
+    const hideStartBtn = document.querySelector('#hideStartBtn');
+    const startBtn = document.querySelector('#startBtn');
+    const pauseBtn = document.querySelector('#pauseBtn');
     let isDropdownVisible = false;
 
     // 点击导出按钮时切换下拉菜单
@@ -904,6 +945,17 @@ const init = () => {
             exportDropdown.classList.add('show');
         } else {
             exportDropdown.classList.remove('show');
+        }
+    });
+
+    // 添加隐藏开始按钮的点击事件
+    hideStartBtn.addEventListener('click', () => {
+        if (startBtn.style.display === 'none') {
+            startBtn.style.display = '';
+            pauseBtn.style.display = '';
+        } else {
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'none';
         }
     });
 
