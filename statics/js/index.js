@@ -17,6 +17,7 @@ const globalProps = {
     isHiddenPrize: false, // 是否在抽隐藏奖
     isRedrawMode: false, // 是否处于续抽模式
     buttons: [], // 存储需要禁用的按钮
+    lock: false, // 是否锁定 默认锁定
 }
 globalProps.el.prizeImg = document.getElementById(`prizeImg`)
 globalProps.el.mask = document.getElementById(`mask`)
@@ -30,7 +31,7 @@ globalProps.el.resetBtn = document.getElementById(`resetBtn`)
 globalProps.el.runningMusic = document.getElementById(`runningMusic`)
 globalProps.el.runningSpecialMusic = document.getElementById(`runningSpecialMusic`)
 globalProps.el.resultMusic = document.getElementById(`resultMusic`)
-// globalProps.el.lockBtn = document.getElementById(`lockBtn`)
+globalProps.el.lockBtn = document.getElementById(`lockBtn`)
 globalProps.el.showPrizeImgBtn = document.getElementById(`showPrizeImgBtn`)
 globalProps.el.prizeLevel = document.getElementById(`prizeLevel`)
 
@@ -79,27 +80,36 @@ const canvasInit = () => {
 
 const operateInit = () => {
     globalProps.el.startBtn.addEventListener(`click`, luckDrawStart)
-    // ???????
-    // document.onkeydown = (event) => {
-    //     if (event.key === "Enter" || event.key === "Tab" || event.key === "PageUp" || event.key === "PageDown") {
-    //         if(!globalProps.lock){
-    //             return false
-    //         }
-    //         if (globalProps.running) {
-    //             luckDrawPause()
-    //         } else {
-    //             luckDrawStart()
-    //         }
-    //         return false
-    //     }
-    // }
+
+    // 用于控件 控制开始抽奖 暂停抽奖
+    document.onkeydown = (event) => {
+        console.log(event.key,'获取按键')
+        // event.key === "Enter" || event.key === "Tab" || 
+        if (event.key === "PageUp" || event.key === "PageDown") {
+            if(!globalProps.lock){
+                console.log('锁定')
+                return false
+            }
+            if (globalProps.running) {
+                console.log('暂停抽奖')
+                luckDrawPause()
+            } else {
+                console.log('开始抽奖')
+                luckDrawStart()
+            }
+            return false
+        }
+    }
+
     globalProps.el.pauseBtn.addEventListener(`click`, luckDrawPause)
     // 双击重置
     globalProps.el.resetBtn.addEventListener(`dblclick`, resetAll)
-    // globalProps.el.lockBtn.addEventListener(`click`, () => {
-    //     globalProps.lock = true;// 锁定
-    //     globalProps.el.lockBtn.classList.add(`hide-g`)
-    // })
+
+    globalProps.el.lockBtn.addEventListener(`click`, () => {
+        globalProps.lock = true;// 解锁
+        globalProps.el.lockBtn.classList.add(`hide-g`);// 隐藏锁定按钮
+    })
+
     globalProps.el.showPrizeImgBtn.addEventListener(`click`, () => {
         if (globalProps.el.prizeLevel.classList.contains(`hide-g`)) {
             globalProps.el.prizeLevel.classList.remove(`hide-g`)
@@ -436,8 +446,8 @@ const luckDrawPause = () => {
         globalProps.el.runningMusic.currentTime = 1.5// 设置背景音乐播放时间
         globalProps.el.runningMusic.play()// 播放背景音乐
     },6400)
-    // globalProps.lock = false// 解锁
-    // globalProps.el.lockBtn.classList.remove(`hide-g`)// 显示锁按钮
+    globalProps.lock = false// 锁定
+    globalProps.el.lockBtn.classList.remove(`hide-g`)// 显示锁按钮
     if (globalProps.isHiddenPrize && globalProps.nowHiddenLuckMemberIndexArr.length > 0) {
         // 保存隐藏奖记录
         const hiddenRecordsStr = localStorage.getItem(globalProps.storageKey.hiddenPrizeRecords);
@@ -489,37 +499,54 @@ const showNewLuckMemberResult = () => {
             </div>
         `;
     } else {
-        // 普通奖品的显示逻辑
+        // 修改普通奖品的显示逻辑
         let startIndex = 0;
-        globalProps.nowPrizeObj.forEach(prize => {
+        prizeSectionsHtml = globalProps.nowPrizeObj.map(prize => {
             const prizeWinners = globalProps.nowLuckMemberIndexArr
                 .slice(startIndex, startIndex + prize.memberNum);
             
-            let winnersHtml = prizeWinners.map(index => {
-                const winner = memberList[index];
-                return `
-                    <div class="winner-card">
-                        <div class="winner-avatar">
-                            <img src="./statics/images/member/${winner.name}.png" alt="${winner.name}">
-                        </div>
-                        <div class="winner-name">${winner.name}</div>
-                    </div>
-                `;
-            }).join('');
+            const winnerCount = prizeWinners.length;
+            const gridClass = winnerCount === 5 ? 'five-winners' : 'seven-winners';
             
-            prizeSectionsHtml += `
+            // 分割获奖者为两行
+            let firstRow, secondRow;
+            if (winnerCount === 5) {
+                firstRow = prizeWinners.slice(0, 2);
+                secondRow = prizeWinners.slice(2);
+            } else {
+                firstRow = prizeWinners.slice(0, 3);
+                secondRow = prizeWinners.slice(3);
+            }
+
+            // 生成行HTML
+            const generateRowHtml = (winners) => {
+                return winners.map(index => {
+                    const winner = memberList[index];
+                    return `
+                        <div class="winner-card">
+                            <div class="winner-avatar">
+                                <img src="./statics/images/member/${winner.name}.png" alt="${winner.name}">
+                            </div>
+                            <div class="winner-name">${winner.name}</div>
+                        </div>
+                    `;
+                }).join('');
+            };
+            
+            startIndex += prize.memberNum;
+            
+            return `
                 <div class="prize-section">
                     <div class="prize-image">
                         <img src="./statics/images/prize-min/${prize.id}.png" alt="${prize.name}"/>
                     </div>
-                    <div class="winners-grid">
-                        ${winnersHtml}
+                    <div class="winners-grid ${gridClass}">
+                        <div class="winners-row">${generateRowHtml(firstRow)}</div>
+                        <div class="winners-row">${generateRowHtml(secondRow)}</div>
                     </div>
                 </div>
             `;
-            
-            startIndex += prize.memberNum;
-        });
+        }).join('');
     }
 
     resultHtml = `
