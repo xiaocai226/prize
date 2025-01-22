@@ -16,6 +16,7 @@ const globalProps = {
     hiddenPrizeAmount: 0, // 隐藏奖金额
     isHiddenPrize: false, // 是否在抽隐藏奖
     isRedrawMode: false, // 是否处于续抽模式
+    buttons: [], // 存储需要禁用的按钮
 }
 globalProps.el.prizeImg = document.getElementById(`prizeImg`)
 globalProps.el.mask = document.getElementById(`mask`)
@@ -154,6 +155,54 @@ const getPrizeIndex = () => {
     }
 }
 
+// 添加禁用按钮的函数
+const disableButtons = () => {
+    // 获取所有需要禁用的按钮
+    const buttons = [
+        document.getElementById('resetBtn'),
+        document.querySelector('.export-btn'),
+        document.getElementById('showPrizeImgBtn'),
+        document.getElementById('showPrizeBtn'),
+        document.getElementById('audioOpenBtn'),
+        document.getElementById('memberNumInput')
+    ];
+    
+    // 禁用所有按钮
+    buttons.forEach(button => {
+        if (button) {
+            button.style.opacity = '0.5';
+            button.style.pointerEvents = 'none';
+            if (button.tagName.toLowerCase() === 'input') {
+                button.disabled = true;
+            }
+        }
+    });
+}
+
+// 添加启用按钮的函数
+const enableButtons = () => {
+    // 获取所有需要启用的按钮
+    const buttons = [
+        document.getElementById('resetBtn'),
+        document.querySelector('.export-btn'),
+        document.getElementById('showPrizeImgBtn'),
+        document.getElementById('showPrizeBtn'),
+        document.getElementById('audioOpenBtn'),
+        document.getElementById('memberNumInput')
+    ];
+    
+    // 启用所有按钮
+    buttons.forEach(button => {
+        if (button) {
+            button.style.opacity = '';
+            button.style.pointerEvents = '';
+            if (button.tagName.toLowerCase() === 'input') {
+                button.disabled = false;
+            }
+        }
+    });
+}
+
 // 开始抽奖
 const luckDrawStart = () => {
     // 检查是否选择了奖品
@@ -267,6 +316,10 @@ const luckDrawStart = () => {
     globalProps.el.prizeShow.classList.add(`hide-g`)// 隐藏奖品列表
     globalProps.el.startBtn.classList.add(`hide-g`)// 隐藏开始按钮
     globalProps.el.pauseBtn.classList.remove(`hide-g`)// 显示停止按钮
+    
+    // 禁用其他按钮
+    disableButtons();
+    
     TagCanvas.SetSpeed("canvas", [0.8, 0.1])// 设置抽奖速度
 
     globalProps.nowLuckMemberIndexArr = []// 清空已抽奖名单
@@ -369,6 +422,10 @@ const luckDrawStart = () => {
 const luckDrawPause = () => {
     globalProps.el.pauseBtn.classList.add(`hide-g`);// 隐藏停止按钮
     globalProps.el.startBtn.classList.remove(`hide-g`);// 显示开始按钮
+    
+    // 启用其他按钮
+    enableButtons();
+    
     TagCanvas.SetSpeed("canvas", getCanvasSpeed());// 设置抽奖速度
     globalProps.el.runningMusic.pause();// 暂停背景音乐
     globalProps.el.runningSpecialMusic.pause();// 暂停背景音乐
