@@ -122,6 +122,8 @@ const memberList = [
     {name: "郑俊杰"},
     {name: "祝金平"},
     {name: "李军"},
+    {name: "zoe"},
+    {name: "lisa"},
 
     // zo
     {name: "lilian"},
