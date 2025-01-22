@@ -13,7 +13,7 @@ const globalProps = {
     nowHiddenLuckMemberIndexArr: [], // 当前隐藏奖名单
     nowPrizeObj: [],// 当前奖品
     running: false,// 抽奖进行与否
-    hiddenPrizeAmount: 0, // 隐藏奖金额
+    // hiddenPrizeAmount: 0, // 隐藏奖金额
     isHiddenPrize: false, // 是否在抽隐藏奖
     isRedrawMode: false, // 是否处于续抽模式
     buttons: [], // 存储需要禁用的按钮
@@ -217,10 +217,10 @@ const enableButtons = () => {
 const luckDrawStart = () => {
     // 检查是否选择了奖品
     if (globalProps.nowPrizeObj.length === 0 && !globalProps.isRedrawMode) {
-        const confirmHidden = confirm(`当前未选择奖品，且抽奖人数为 ${getMemberNumInputVal()}，是否要抽取隐藏奖？`);
-        if (!confirmHidden) {
-            return; // 如果用户点击取消，则终止抽奖
-        }
+        // const confirmHidden = confirm(`当前未选择奖品，且抽奖人数为 ${getMemberNumInputVal()}，是否要抽取隐藏奖？`);
+        // if (!confirmHidden) {
+        //     return; // 如果用户点击取消，则终止抽奖
+        // }
         
         // 密码验证
         // const password = prompt('请输入隐藏奖密码：');
@@ -230,14 +230,14 @@ const luckDrawStart = () => {
         // }
         
         // 输入奖品内容（更灵活的输入）
-        const amount = prompt('请输入隐藏奖内容（可以是金额或文字）：');
-        if (!amount) {
-            alert('请输入有效的隐藏奖内容！');
-            return;
-        }
+        // const amount = prompt('请输入隐藏奖内容（可以是金额或文字）：');
+        // if (!amount) {
+        //     alert('请输入有效的隐藏奖内容！');
+        //     return;
+        // }
         
         globalProps.isHiddenPrize = true; // 标记为隐藏奖抽奖
-        globalProps.hiddenPrizeAmount = amount;
+        // globalProps.hiddenPrizeAmount = amount;
     } else {
         globalProps.isHiddenPrize = false;
     }
@@ -455,7 +455,7 @@ const luckDrawPause = () => {
         
         hiddenRecords.push({
             winners: globalProps.nowHiddenLuckMemberIndexArr,
-            amount: globalProps.hiddenPrizeAmount
+            date: new Date().toISOString()
         });
         
         localStorage.setItem(globalProps.storageKey.hiddenPrizeRecords, JSON.stringify(hiddenRecords));
@@ -806,11 +806,11 @@ const exportLuckMemberList = (isHidden = false) => {
             return;
         }
 
-        let csvContent = '序号,中奖人员,奖品内容,抽取时间\n';
+        let csvContent = '序号,中奖人员,抽取时间\n';
         hiddenRecords.forEach((record, index) => {
             const winners = record.winners.map(index => memberList[index].name);
             const date = new Date(record.date || new Date()).toLocaleString('zh-CN');
-            csvContent += `${index + 1},${winners.join('、')},${record.amount},${date}\n`;
+            csvContent += `${index + 1},${winners.join('、')},${date}\n`;
         });
 
         const date = new Date();
