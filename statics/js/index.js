@@ -532,7 +532,9 @@ const showNewLuckMemberResult = () => {
                     <img src="./statics/images/prize-min/27.png" alt="隐藏奖"/>
                 </div>
                 <div class="winners-grid">
-                    ${winnersHtml}
+                    <div class="winners-center-container">
+                        ${winnersHtml}
+                    </div>
                 </div>
             </div>
         `;

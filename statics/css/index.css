@@ -591,11 +591,13 @@ body {
 }
 
 .winner-card {
-    width: 90px;  /* 稍微调整卡片大小 */
+    width: 100px;  /* 稍微调整卡片大小 */
     background: rgba(255, 255, 255, 0.15);
     border-radius: 8px;
     border: 1px solid rgba(255, 215, 0, 0.3);
     padding: 8px;
+    margin: 0;  /* 移除原有margin，使用gap控制间距 */
+    transition: transform 0.3s ease;  /* 添加过渡效果 */
 }
 
 .winner-avatar {
@@ -965,4 +967,13 @@ body {
 
 .hide-btn:hover {
     color: rgba(255, 255, 255, 0.3);
+}
+
+.winners-center-container {
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;  /* 添加卡片之间的间距 */
+    flex-wrap: wrap;  /* 确保在需要时可以换行 */
 }

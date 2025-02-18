@@ -115,7 +115,7 @@ const memberList = [
     {name: "孔燕凌"},
     {name: "林婉真"},
     {name: "美东"},
-    {name: "孟总"},
+    {name: "孟庆佳"},
     {name: "苏秋梅"},
     {name: "王超然"},
     {name: "王宇杰"},
@@ -124,6 +124,8 @@ const memberList = [
     {name: "李军"},
     {name: "zoe"},
     {name: "lisa"},
+    {name: "秦博睿"},
+    {name: "郑可君"},
 
     // zo
     {name: "lilian"},
@@ -156,7 +158,19 @@ const memberList = [
     {name: "钟碧荣"},
     {name: "钟鑫城"},
     {name: "周仕杰"},
-    {name: "朱娟"}
+    {name: "朱娟"},
+
+    {name: '王思晨'},
+    {name: '王思琪'},
+    {name: '王思瑶'},
+    {name: '许柏熙'},
+    {name: '许若熙'},
+    // Andy 熊刚 陈伟 吕晨浩
+    {name: 'Andy'},
+    {name: '熊刚'},
+    {name: '陈伟'},
+    {name: '吕晨浩'},
+    {name: '彭云亭'},
 ]
 
 console.log(`参与抽奖人数一共 ${memberList.length} 人`)
